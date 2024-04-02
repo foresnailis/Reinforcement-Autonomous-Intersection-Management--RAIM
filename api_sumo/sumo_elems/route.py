@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """
-
+路径
+edges 组成路径的边列表
+color 颜色
 """
 
 from elem import Elem

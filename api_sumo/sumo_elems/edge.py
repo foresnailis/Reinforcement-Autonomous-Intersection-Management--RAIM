@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 """
-
+有向边
+属性列表：
+from 起点对象id
+to 终点对象id
 """
 
 from elem import Elem

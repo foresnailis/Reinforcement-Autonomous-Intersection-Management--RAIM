@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 """
 Basic object type to represent a sumo object in python.
+一个sumo对象的基类
+该基类实例在初始化时，确定名称、id，初始化一个属性列表；
+后续，基类实例的任何属性的读写均只在属性列表中；不在列表中的属性无法新建。
 """
 __author__ = "Bryan Alexis Freire Viteri"
 __version__ = "3.0"

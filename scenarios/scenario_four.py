@@ -9,6 +9,14 @@ __author__ = "Bryan Alexis Freire Viteri"
 __version__ = "3.0"
 __email__ = "bryanfv95@gmail.com"
 
+"""
+通行21小时
+每半小时的通行数不同
+NS-SN 方向：
+▁▃▇▇▇▇▃▁▁▃▃▃▇▇▇▇▃▁▁▁▇▁▇▁▇▁▇▇▇▇▁▁▁▁▇▁▇▁▇▁
+WE-EW 方向：
+▁▃▇▇▇▇▃▁▁▁▁▁▁▃▇▇▇▇▃▁▁▇▁▇▁▇▇▇▇▇▁▁▁▁▇▁▇▁▇▁
+"""
 class ScenarioFour(AsymmetricVariableFlowsManhattan):
     def __init__(self,sg_mh,lowDens=250.0,medDens=500.0,highDens=775.0,duration=1800):
         super(ScenarioFour,self).__init__(sg_mh,2,\

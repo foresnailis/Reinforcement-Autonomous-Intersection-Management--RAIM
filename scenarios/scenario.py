@@ -28,10 +28,12 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
             endNS = endSN = endWE = endEW = 0
 
             #La variable grupos por tiempo, es el numero de fujos diferentes que hay en un intervalo
+            # 在同一条交通流中，车辆直行、车辆右转、行人左转，三者参数一致
             if self.gpt == 1: #siendo posibles uno, todos los sentidos con el mismo flujo
 #                beginNS = beginSN = beginWE = beginEW = group[0]
 #                endNS = endSN = endWE = endEW = group[1]
 #                probNS = probSN = probWE = probEW = group[2]
+                # 所有方向流量相等
                 beginNS = beginSN = beginWE = beginEW = \
                 beginNW = beginSE = beginWS = beginEN = group[0]
 
@@ -56,6 +58,7 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
 #                beginNS = beginSN = group[0]; beginWE = beginEW = group[3]
 #                endNS = endSN = group[1]; endWE = endEW = group[4]
 #                probNS = probSN = group[2]; probWE = probEW = group[5]
+                # 南北、东西各一条交通流
                 beginNS = beginSN = beginNS_ped = beginSN_ped = beginNW = \
                 beginSE = beginNW_ped = beginSE_ped = beginNE_ped = beginES_ped = group[0]
                 endNS = endSN = endNS_ped = endSN_ped = endNW = endSE = \
@@ -73,6 +76,7 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
                 probEN_ped = probSW_ped = probWN_ped = 0.0001
 
             elif self.gpt == 4: # cuatro, NS,SN,WE,EW cada uno con un flujo diferente
+                # 东西南北各自一条交通流
                 beginNS = beginNS_ped = beginNW = beginNW_ped = beginNE_ped = group[0]
                 beginSN = beginSN_ped = beginSE = beginSE_ped = beginES_ped = group[3]
                 beginWE = beginWE_ped = beginWS = beginWS_ped = beginSW_ped = group[6]
@@ -87,6 +91,7 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
                 probEW = probEW_ped = probEN = probEN_ped = probWN_ped = group[11]
 
             else: # 20, uno para cada flujo, incluido los peatones
+                # 直行
                 beginNS = group[0]; endNS = group[1]; probNS = group[2];
                 beginNS_ped = group[3]; endNS_ped = group[4]; probNS_ped = group[5];
                 beginSN = group[6]; endSN = group[7]; probSN = group[8];
@@ -95,6 +100,7 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
                 beginWE_ped = group[15]; endWE_ped = group[16]; probWE_ped = group[17];
                 beginEW = group[18]; endEW = group[19]; probEW = group[20];
                 beginEW_ped = group[21]; endEW_ped = group[22]; probEW_ped = group[23];
+                # 车辆右转、行人左转
                 beginNW = group[24]; endNW = group[25]; probNW = group[26];
                 beginNW_ped = group[27]; endNW_ped = group[28]; probNW_ped = group[29];
                 beginSE = group[30]; endSE = group[31]; probSE = group[32];
@@ -103,6 +109,7 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
                 beginWS_ped = group[39]; endWS_ped = group[40]; probWS_ped = group[41];
                 beginEN = group[42]; endEN = group[43]; probEN = group[44];
                 beginEN_ped = group[45]; endEN_ped = group[46]; probEN_ped = group[47];
+                # 左转
                 beginNE_ped = group[48]; endNE_ped = group[49]; probNE_ped = group[50];
                 beginES_ped = group[51]; endES_ped = group[52]; probES_ped = group[53];
                 beginSW_ped = group[54]; endSW_ped = group[55]; probSW_ped = group[56];
@@ -135,36 +142,41 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
     def _create_flows(self):
         flows = 'flow{}_{}_{}'.format
         routs = 'rout{}_{}'.format
+        """
+        南北走向直走的所有路径
+        """
         for i in range(1,self.sg.cols-1):
             routeid = routs('NS',i)
-            self.add_route(Route(routeid,get_edges(0,i,self.sg.rows-1,
-                                                   i,self.sg.rows,
-                                                   self.sg.cols,
+            self.add_route(Route(routeid,get_edges(0,i,
+                                                   self.sg.rows-1,i,
+                                                   self.sg.rows,self.sg.cols,
                                                    straight=True,
                                                    pedestrians=False)))
                 # Pedestrians
             routeid = routs('NS_ped',i)
-            self.add_route(Route(routeid,get_edges(0,i,self.sg.rows-1,
-                                                   i,self.sg.rows,
-                                                   self.sg.cols,
+            self.add_route(Route(routeid,get_edges(0,i,
+                                                   self.sg.rows-1,i,
+                                                   self.sg.rows,self.sg.cols,
                                                    straight=True,
                                                    pedestrians=True)))
 
             routeid = routs('SN',i)
-            self.add_route(Route(routeid,get_edges(self.sg.rows-1,i,0,
-                                                   i,self.sg.rows,
-                                                   self.sg.cols,
+            self.add_route(Route(routeid,get_edges(self.sg.rows-1,i,
+                                                   0,i,
+                                                   self.sg.rows,self.sg.cols,
                                                    straight=True,
                                                    pedestrians=False)))
 
                 # Pedestrians
             routeid = routs('SN_ped',i)
-            self.add_route(Route(routeid,get_edges(self.sg.rows-1,i,0,
-                                                   i,self.sg.rows,
-                                                   self.sg.cols,
+            self.add_route(Route(routeid,get_edges(self.sg.rows-1,i,
+                                                   0,i,
+                                                   self.sg.rows,self.sg.cols,
                                                    straight=True,
                                                    pedestrians=True)))
-
+        """
+        东西走向直走的所有路径
+        """
         for i in range(1,self.sg.rows-1):
             routeid = routs('WE',i)
             self.add_route(Route(routeid,get_edges(i,0,
@@ -193,6 +205,9 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
                                                    pedestrians=True)))
             # Rutas girando a la derecha
         # Rutas NW y SE
+        """
+        南北走向右转的所有路径
+        """
         k=0
         for i in range(1,self.sg.cols-1):
             for j in range(1,self.sg.rows-1):
@@ -228,6 +243,9 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
                                                        pedestrians=True)))
                 k+=1
         # Rutas WS y EN
+        """
+        东西走向右转的所有路径
+        """
         k=0
         for i in range(1,self.sg.rows-1):
             for j in range(1,self.sg.cols-1):
@@ -261,6 +279,9 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
                 k+=1
 
         # Rutas NE_ped, ES_ped, SW_ped y WN_ped
+        """
+        步行左转的所有路径
+        """
         k=0
         for i in range(1,self.sg.rows-1):
             for j in range(1,self.sg.cols-1):
@@ -293,6 +314,9 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
                                                        pedestrians=True)))
                 k+=1
 
+        """
+        添加车辆类型
+        """
         self.add_car_type(CarType(_id='car_gasoline',
                                   vClass="passenger",
                                   carFollowModel="Krauss",
@@ -367,6 +391,7 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
             beginSW_ped, beginWN_ped, endNE_ped, endES_ped, endSW_ped,\
             endWN_ped, probNE_ped, probES_ped, probSW_ped, probWN_ped in self._get_intervals():
                 j+=1
+                # 南北走向车流和人流
                 for i in range(1,self.sg.cols-1):
                     routeid = routs('NS',i)
                     self.add_flow(Flow(flows('NS',i,j),beginNS,endNS,vehsPerHour=probNS,route=routeid,departSpeed='max',
@@ -380,7 +405,7 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
 
                     routeid = routs('SN_ped',i)
                     self.add_flow(Flow(flows('SN_ped_',i,j),beginSN_ped,endSN_ped,vehsPerHour=probSN_ped,route=routeid,tpe='pedestrian'))
-
+                # 东西走向车流
                 for i in range(1,self.sg.rows-1):
                     routeid = routs('WE',i)
                     self.add_flow(Flow(flows('WE',i,j),beginWE,endWE,vehsPerHour=probWE,route=routeid,departSpeed='max',tpe='typedist1'))
@@ -390,6 +415,7 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
 
 
                 # Rutas NW y SE
+                # 南北走向右转车流
                 k=0
                 for i in range(1,self.sg.cols-1):
                     for m in range(1,self.sg.rows-1):
@@ -409,6 +435,7 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
                                            tpe='typedist1'))
                         k+=1
                 # Rutas WS y EN
+                # 东西走向右转车流
                 k=0
                 for i in range(1,self.sg.cols-1):
                     for m in range(1,self.sg.rows-1):

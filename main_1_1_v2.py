@@ -49,7 +49,7 @@ else:
     sumoBinary = checkBinary('sumo-gui')
 #%
 if pltf == "Windows":
-    root = 'E:/api-sumo_v3/1x1/VAST4'
+    root = 'D:/TongjiCourse/Multi-Agent/Reinforcement-Autonomous-Intersection-Management--RAIM'
 else:
     root = '/root/RAIM'
 
@@ -110,7 +110,8 @@ Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 #%
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
-epochs = 1000000
+# epochs = 1000000
+epochs = 10
 rewards = []
 training_records = []
 training_tripinfo = []

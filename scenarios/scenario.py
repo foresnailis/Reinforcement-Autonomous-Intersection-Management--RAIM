@@ -14,7 +14,7 @@ class AsymmetricVariableFlowsManhattan(SumoScenario):
     def __init__(self,sg_mh,groupspertime,*args):
         super(AsymmetricVariableFlowsManhattan,self).__init__()
         if groupspertime not in [1,2,4,20]:
-            raise AtributeError('Groups_per_time must be 1, 2, 4 or 20')
+            raise AttributeError('Groups_per_time must be 1, 2, 4 or 20')
         self.gpt = groupspertime
         self.sg = sg_mh
         self.args = args

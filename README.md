@@ -21,7 +21,7 @@ conda create -n RAIM python=3.8 anaconda
 
 ```bash
 conda activate RAIM
-conda install --file requirements.tx
+conda install --file requirements.txt
 ```
 
 ## How to run

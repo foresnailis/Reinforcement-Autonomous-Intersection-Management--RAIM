@@ -24,7 +24,68 @@ __author__ = "Bryan Alexis Freire Viteri. Mod by Antonio Guillen Perez"
 __version__ = "3.0"
 __email__ = "bryanfv95@gmail.com antonio.guillen@edu.upct.es"
 
+'''
+**成员函数**：
+
+1. `__init__`：
+   - 输入：各种模拟参数
+   - 输出：无
+   - 功能：初始化模拟器，设置参数。
+
+2. `change_graph`、`change_scenario`、`change_algorithm`：
+   - 输入：图形、场景、算法对象
+   - 输出：无
+   - 功能：改变当前模拟的图形、场景和算法。
+
+3. `run_simulation`：
+   - 输入：无
+   - 输出：模拟结果、训练记录、状态、动作、碰撞信息
+   - 功能：运行模拟，执行交通流和奖励的计算，并返回结果。
+
+4. `run_test_simulation`：
+   - 输入：无
+   - 输出：无
+   - 功能：运行测试模拟。
+
+5. `obtain_loss_time`：
+   - 输入：无
+   - 输出：损失时间
+   - 功能：获取损失时间的计算。
+
+6. `getTripinfo`：
+   - 输入：无
+   - 输出：模拟统计信息
+   - 功能：获取模拟的一些统计信息，如旅行次数、总耗时等。
+
+7. `reset_statistics`：
+   - 输入：无
+   - 输出：无
+   - 功能：重置模拟的统计信息。
+
+8. `init_simulation`：
+   - 输入：无
+   - 输出：无
+   - 功能：初始化模拟。
+
+9. `close_simulation`：
+   - 输入：无
+   - 输出：无
+   - 功能：关闭模拟。
+'''
+
 class SumoSimulation(object):
+    '''
+    成员对象：
+    sg、ss、sa：分别代表图形、场景和算法的对象，应该是对SumoAlgorithm、SumoGraph、SumoScenario等的调用吧
+    sgC、ssC、saC：布尔值，用于跟踪是否更改了以上对象。
+    nc、smg、sm、ng：字符串，分别表示netconvert、sumo-gui、sumo和SUMO可执行文件的路径。
+    lanes、ncols、nrows、leng、timer：道路车道数、网格列数、网格行数、道路长度、定时器。
+    gui、process、port、seed、flow：是否启用gui、控制SUMO进程的启动和关闭、与SUMO通信的端口号（存疑）、模拟的随机种子、车辆的流量。
+    im：IntersectionManager实例，管理交叉口的状态。
+    running_reward、rewards、training_records、i_ep：此次模拟总奖励值、奖励历史记录列表、训练记录列表、当前模拟的迭代次数。
+    tripinfo_file、simulation_duration：存储模拟结果的文件名、simulation_duration模拟的持续时间。
+    _traci：与SUMO交互的 traci 对象。
+    '''
     def __init__(self,
                  sg=None,
                  ss=None,
@@ -99,44 +160,44 @@ class SumoSimulation(object):
     def time(self):
         return self._time
 
-    def change_graph(self,sg):
+    def change_graph(self,sg): # Graph更新与相关结构更新
         self.sg = sg
         self.sgC = True
         self.saC = True
 
-    def change_scenario(self,ss):
+    def change_scenario(self,ss): # Scenario更新与相关结构更新
         self.ss = ss
         self.ssC = True
         self.saC = True
 
-    def change_algorithm(self,sa):
+    def change_algorithm(self,sa): # Algorithm更新与相关结构更新
         self.sa = sa
         self.saC = True
 
-    def run_simulation(self):
-        if not (self.sg and self.ss and self.sa):
+    def run_simulation(self): # 模拟函数
+        if not (self.sg and self.ss and self.sa): # 是否实例化必要结构
             raise ValueError('Graph,Scenario and Algorithm are needed')
 
-        self.init_simulation()
-        if self.saC:
+        self.init_simulation() # 初始化模拟
+        if self.saC: # 初始化saC判断
             # self.sa.prepare_algorithm(self)
             self.saC = False
         # else:
             # self.sa.reset_algorithm(self)
 
-        TrainingRecord = namedtuple('TrainingRecord', ['ep', 'reward'])
+        TrainingRecord = namedtuple('TrainingRecord', ['ep', 'reward']) # 训练记录：轮次与奖励
 
-        self.reset_statistics()
+        self.reset_statistics() # 重置数据
         states = []
         actions = []
-        self._traci.simulationStep()
+        self._traci.simulationStep() # 向前一个时间步
 
         # Obtain state
-        states.append(self.im.first_state())
-        self.im.control_tls()
+        states.append(self.im.first_state()) # 状态更新，但是四个全是im方法，没看
+        self.im.control_tls() 
         self.im.reset_values()
         self.im.score = 0
-        collisions = []
+        collisions = [] # 碰撞记录
 
         while self._traci.simulation.getMinExpectedNumber() > 0:
             if self._traci.simulation.getTime() % 25 == 0:

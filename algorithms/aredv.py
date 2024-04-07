@@ -14,6 +14,24 @@ __email__ = "bryanfv95@gmail.com"
 class AREDVAlgorithm(ManhattanAlgorithm):
     def __init__(self,cycle,min_green_time,min_red_time,minth,maxth,delta,\
                 maxp, avgmode,wq=0.5,lanes=1, greentime_pre=15, alpha = 0.1, beta=0.9):
+        """
+        初始化 AREDVAlgorithm 类的实例。
+
+        Args:
+            cycle (int): 信号灯周期的总时间。
+            min_green_time (int): 最小绿灯时间。
+            min_red_time (int): 最小红灯时间。
+            minth (float): 最小车辆排队长度。
+            maxth (float): 最大车辆排队长度。
+            delta (int): 改变绿灯时间的增量。
+            maxp (float): 最大绿灯时延长周期的比例。
+            avgmode (function): 用于计算平均排队长度的函数。
+            wq (float): 车辆等待时间权重。
+            lanes (int): 交通道数。
+            greentime_pre (int): 绿灯预留时间。
+            alpha (float): 最大绿灯时延长周期的步长。
+            beta (float): 最大绿灯时缩短周期的步长。
+        """
         super(AREDVAlgorithm,self).__init__(wq,lanes)
         self.cycle = cycle
         self.min_green_time = min_green_time

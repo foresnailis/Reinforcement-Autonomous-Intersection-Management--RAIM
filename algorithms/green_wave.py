@@ -13,6 +13,16 @@ __email__ = "bryanfv95@gmail.com"
 
 class GreenWaveAlgorithm(ManhattanAlgorithm):
     def __init__(self,greentime,deltatime,nogreenstages=10,wq=0.5,lanes=1):
+        """
+        初始化 GreenWaveAlgorithm 类的实例。
+
+        Args:
+            greentime (int): 绿灯时间。
+            deltatime (int): 两个交通信号灯之间的时间间隔。
+            nogreenstages (int): 不可用的绿灯阶段数量。
+            wq (float): 车辆等待时间权重。
+            lanes (int): 交通道数。
+        """
         super(GreenWaveAlgorithm,self).__init__(wq,lanes)
         self.gt = greentime
         self.dt = deltatime

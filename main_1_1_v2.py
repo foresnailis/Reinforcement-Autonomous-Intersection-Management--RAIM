@@ -48,6 +48,7 @@ else:
     netgenBinary = checkBinary('netgenerate')
     sumoBinary = checkBinary('sumo-gui')
 #%
+# 此处需修改为本地仓库的路径
 if pltf == "Windows":
     root = 'D:/TongjiCourse/Multi-Agent/Reinforcement-Autonomous-Intersection-Management--RAIM'
 else:
@@ -66,7 +67,7 @@ from api_sumo import *  # noqa
 from graphs import *  # noqa
 from scenarios import *  # noqa
 
-# %
+# % 设置种子可以确保每次运行代码时得到相同的随机数序列，从而使实验可重现
 SEED = 42
 
 torch.manual_seed(SEED)
@@ -81,7 +82,7 @@ nrows = 1
 # Number of columns:
 ncols = 1
 # Number of lanes:
-nlanes = 2
+nlanes = 2 # 车道数
 # Lenght (m):
 length = 200
 
@@ -96,6 +97,7 @@ simulacion = SumoSimulation(red_manhattan, gui=False, lanes=nlanes,
                             seed=SEED, flow=25)
 
 # Algoritmo para controlar los semáforos. Deprecated in v3
+# 控制交通灯的算法。V3中折旧
 Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 
 #%
@@ -110,11 +112,10 @@ Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 #%
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
-# epochs = 1000000
-epochs = 10
-rewards = []
-training_records = []
-training_tripinfo = []
+epochs = 10 # 训练轮次
+rewards = [] # 训练奖励值
+training_records = [] # 训练统计数据
+training_tripinfo = [] # 训练过程车辆行程信息
 aux = []
 collisions = []
 # simulacion.create_route_files_v2()
@@ -122,16 +123,18 @@ collisions = []
 flow = 50
 i = 0
 change_seed_every = 5
-best_timeloss = 9999
-best_collisions = 9999
+best_timeloss = 9999 # 记录最佳时间损失
+best_collisions = 9999 # 记录最佳碰撞次数
 
 try:
     for epoch in np.arange(epochs):
-        simulacion.i_ep = epoch
-        simulacion.seed = int(epoch/change_seed_every)
-        simulacion.change_algorithm(Fixed)
-        simulacion.change_scenario(escenario)
+        simulacion.i_ep = epoch # 将当前轮次的索引传递给仿真环境
+        simulacion.seed = int(epoch/change_seed_every) # 基于当前轮次的索引更新了随机种子，以改变随机性
+        simulacion.change_algorithm(Fixed) # 设置控制算法
+        simulacion.change_scenario(escenario) # 设置交通场景
         # simulacion.flow = flow
+        # 根据智能体的记忆是否已满来调整仿真环境中的流量参数。如果记忆已满，
+        # 则使用预定义的流量值；否则，随机选择一个流量值。
         if simulacion.im.agent.memory.is_full():
             elapsed_time = time.time() - start_time
             print(time.strftime("Elapsed time: %H:%M:%S", time.gmtime(elapsed_time)))
@@ -143,20 +146,20 @@ try:
             simulacion.simulation_duration = 5*60
             simulacion.flow = np.random.randint(25, 600)
 
-        [r,t,s,a,c] = simulacion.run_simulation()
-        rewards.append(r)
-        training_records.append(t)
-        ti = simulacion.getTripinfo()
-        collisions.append(np.sum(c))
+        [r,t,s,a,c] = simulacion.run_simulation()  # 执行一次仿真
+        rewards.append(r) # 奖励值
+        training_records.append(t) # 训练记录
+        ti = simulacion.getTripinfo() # 获取仿真车辆的行程信息
+        collisions.append(np.sum(c)) # 碰撞次数
 
-        if ti[0] > 0: # No ha habido error en tripInfo por el # de veh
+        if ti[0] > 0: # No ha habido error en tripInfo por el # de veh 检查车辆行程信息是否有效
             try:
-                training_tripinfo.append(ti)
+                training_tripinfo.append(ti) 
                 aux.append(ti)
                 a = np.reshape(training_tripinfo, (-1, 9))
 
                 b = np.reshape(aux, (-1, 9))
-
+                # 下面将训练的指标写入
                 writer.add_scalar('Global/Density', flow, i)
                 writer.add_scalar('Global/# of Vehicles', ti[0], i)
                 writer.add_scalar('Global/# Collisions', np.sum(c), i)
@@ -172,6 +175,12 @@ try:
                 writer.add_scalar('Timeloss/Max', ti[8], i)
                 i += 1
                 # flow += 50
+
+                # 根据历史车辆行程信息的变化情况来动态调整交通流量参数，以优化模型的训练和性能。
+                # 这一行代码检查了历史记录数据量是否大于250。这里的 a 是一个二维数组，存储了历史车辆行程信息。
+                # 当历史记录数据量超过250时，表示已经收集了一定数量的数据，可以进行后续的判断。
+                # 如果方差小于0.005倍的流量，则认为环境变化不大，可以增加流量。
+                # 如果历史记录数据量超过1000条，即已经收集了一定量的数据，也可以增加流量。
                 if len(a) > 250:
                     # if np.mean(a[:,7][-1000:]) < 0.5:
                     if np.var(a[:,7][-250:]) < 0.005*flow or len(a) > 1000:
@@ -182,7 +191,8 @@ try:
                         best_timeloss = 9999
                         best_collisions = 9999
 
-                # Guardamos el mejor
+                # Guardamos el mejor我们保留了最好的
+                # 当前的碰撞次数和时间损失均优于历史最佳值
                 if best_collisions >= np.sum(c) and best_timeloss >= ti[7]:
                     best_timeloss = ti[7]
                     best_collisions = np.sum(c)

@@ -9,6 +9,7 @@ __author__ = "Bryan Alexis Freire Viteri"
 __version__ = "3.0"
 __email__ = "bryanfv95@gmail.com"
 
+# 这多了个参数是行人绿灯吗？打个问号，不清楚物理含义
 class FixedAlgorithmv2(ManhattanAlgorithm):
     def __init__(self,greentime=20,greentime_ped=20,wq=0.5,lanes=1):
         super(FixedAlgorithmv2,self).__init__(wq,lanes)

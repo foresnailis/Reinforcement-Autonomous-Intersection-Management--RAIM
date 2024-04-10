@@ -178,7 +178,12 @@ class SumoSimulation(object):
         if not (self.sg and self.ss and self.sa): # 是否实例化必要结构
             raise ValueError('Graph,Scenario and Algorithm are needed')
 
-        self.init_simulation() # 初始化模拟
+        '''
+        运行sumo.exe
+        模拟网络和车流文件是其参数
+        然后其他地方使用traci.juntion或者traci.vehicle等调用SUMOapi
+        '''
+        self.init_simulation()
         if self.saC: # 初始化saC判断
             # self.sa.prepare_algorithm(self)
             self.saC = False
@@ -188,17 +193,28 @@ class SumoSimulation(object):
         TrainingRecord = namedtuple('TrainingRecord', ['ep', 'reward']) # 训练记录：轮次与奖励
 
         self.reset_statistics() # 重置数据
-        states = []
-        actions = []
+        
         self._traci.simulationStep() # 向前一个时间步
 
-        # Obtain state
+        # 纯纯记录用的
+        states = []
+        actions = []
+        collisions = []
+        
+        # 初始化状态
         states.append(self.im.first_state()) # 状态更新，拿到当前交叉口车辆所有状态
         self.im.control_tls()  # 更改信号灯
         self.im.reset_values()  # 重置值
         self.im.score = 0 # 初始化分数
-        collisions = [] # 碰撞记录
 
+        
+
+        '''
+        不断循环以下过程
+        根据当前状态选择动作
+        执行动作，更新状态
+        计算这些动作的reward
+        '''
         while self._traci.simulation.getMinExpectedNumber() > 0: # 模拟直至车辆消耗完 
             if self._traci.simulation.getTime() % 25 == 0: # 隔一段时间打印时间信息
                 print(f'Simulation: {self.i_ep}; Time: {self._traci.simulation.getTime()}')
@@ -225,6 +241,8 @@ class SumoSimulation(object):
             if self._traci.simulation.getTime() > 50000: # 如果模拟时间过长，清除待处理事件
                 self._traci.simulation.clearPending()
 
+        
+        # running_reward=-1000,为了尽可能快的让所有车通行
         score = self.im.score # 拿到分数 
         self.running_reward = self.running_reward * 0.9 + score * 0.1 # 更新运行奖励
         self.training_records.append(TrainingRecord(self.i_ep, self.running_reward))
@@ -375,8 +393,6 @@ class SumoSimulation(object):
             return [total_trips, total_timeloss, total_duration, total_wtime,
                     average_relative_timeloss, average_duration, average_wtime,
                     average_timeloss, max_timeloss]
-
-
         return self.co2em
     def reset_statistics(self):
         self._time = 0
@@ -483,6 +499,15 @@ class SumoSimulation(object):
         # =============================================================================
         #         import time
         #         time = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
+        
+        '''
+        等效于
+        >>sumo.exe -n=sumodata/net_......
+        或者
+        >>sumo-gui.exe -n=sumodata/net_......
+        这里用到了sumodata的net_1_1.xml和veh_routes_1_1.xml
+        其中veh_routes_1_1.xml还是上一行代码self.create_route_files_v2()创建的
+        '''
         if not self.gui: # 创建一个新线程执行sumo cmd或者sumo gui
             self.process = subprocess.Popen([self.sm,
                                              '-n=sumodata/net_'+ str(self.nrows)+'_'+str(self.ncols)+'.xml',
@@ -566,6 +591,9 @@ class SumoSimulation(object):
         with open('sumodata/veh_routes_' + str(self.nrows) + '_' +\
                   str(self.ncols) + '.xml', 'w') as r: # 打开路线文件
             r.write('<routes>\n') # 起始标记
+            '''
+            vType部分
+            '''
             for ct in self.ss.iter_car_types(): # 遍历车辆
                 r.write(repr(ct)) # 车辆的定义类型
 
@@ -603,9 +631,12 @@ class SumoSimulation(object):
                 print('WARNING: la densidad no puede ser mayor de 3600, set:3600')
                 dens = 3600
 
-            prob = dens/3600  # (veh/h)/(veh/h) se queda un ratio adimensional 车辆生成概率
-            for o in borders: 
-                for d in borders: # 从边界路口列表遍历选取起止点
+            '''
+            flow部分
+            '''
+            prob = dens/3600  # (veh/h)/(veh/h) se queda un ratio adimensional
+            for o in borders:
+                for d in borders:
                     if not o == d:
                         fid = o+'_'+d # 编码路线
                         r.write('\t<flow id="' + fid +
@@ -617,6 +648,8 @@ class SumoSimulation(object):
                                 '" toJunction="' + d + '" />\n') # 写入路线信息
             r.write('</routes>') # 结束符号
 
+    # 没用到
+    # randomTrips.py的调用，生成net_1_1.xml和peds_cycl_routes_1_1.xml
     def __create_peds_route_file(self):
         command = ['api_sumo/randomTrips.py',
                    '-n', 'sumodata/net_'+ str(self.nrows)+'_'+str(self.ncols)+'.xml',

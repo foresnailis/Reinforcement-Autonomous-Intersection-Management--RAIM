@@ -155,7 +155,20 @@ class IntersectionManager:
         self._exit = False # 退出标志位
         self.already_update = False # 更新标志位
 
-    def first_state(self): # 得到初始状态
+    '''
+    初始化状态函数first_state()和更新状态函数update_state()中都有obtain_state()
+    此函数会返回一个list,表示当前所有还未通行车辆的所有信息
+    每一项的内容都是这样的一维数组[x, y, dist, speed, angle, inlane, way, queue, is_inside]
+    x, y       归一化后的相对坐标，相对于路口中央，取值[-1, 1]
+    dist       车辆距离路口中央的直线距离,也映射到了[-1, 1]
+    speed      把从SUMOapi拿到的速度,做了speed=speed/15*2-1
+    angle      把从SUMOapi拿到的角度,angle=angle/180-1
+    inlane     代表车道，因为默认三车道，所以有三个值,比如一车道[0, 0, 1]
+    way        表示[左转,直行,右转]，也是三个值
+    queue      有四个值,代表[W,E,S,N]
+    is_inside  取值0/1,表示车辆是否在路口中
+    '''
+    def first_state(self):
         # self.state = self.new_state.copy()
         # self.raw_data = self.new_raw_data
         self.raw_data = self.obtain_state() # 调用方法得到原始数据
@@ -210,17 +223,21 @@ class IntersectionManager:
         else: # 若不存在
             state = defaultdict(partial(np.ndarray, 0))
 
-    def set_vehicle_highlight(self, state, k, v): # 更新主控车辆状态 state 当前状态 k 车辆标识
+    '''
+    在原先一辆车的参数[x,y,dist,....]前面加上时间和优先级信息
+    即[timer, quarter, priority, x, y, dist, ...]
+    '''
+    def set_vehicle_highlight(self, state, k, v):
         # state[k] = list(np.array(v[:2])/100) + [queue/3] + list(np.array(v[2:6])/np.array([13.89, 3, 2, 1])) + list(np.array(v[9:])/np.array([5, 5, 360]))
         # queue = self.transform_queue(queue)
         # state[k] = list(np.array(v[:2])) + queue + list(np.array(v[2:]))
-        ctime = self._traci.simulation.getTime() # 从路由取得时间
-        timer = ctime - (ctime // self.cycle) * self.cycle #  当前交通灯周期的剩余时间
-        state[k] = [timer/(self.cycle-1)] # 当前时间在交通灯周期内的归一化值，表示当前处于交通灯周期的哪个时间段
-        state[k] += self._get_quarter(timer) # 当前时间所在的“quater？”
-        state[k] += [self._get_priority(v, timer)] # 车辆优先级
-        state[k] += v[:] # 车辆全部状态信息
-        # 现在，state[k]处的元素是一个列表，其内容为[当前周期剩余时间归一化值、当前时间所在quater、车辆优先级列表、当前车辆状态]
+        ctime = self._traci.simulation.getTime()
+        # timer表示当前循环的时间，是个相对时间
+        timer = ctime - (ctime // self.cycle) * self.cycle
+        state[k] = [timer/(self.cycle-1)]
+        state[k] += self._get_quarter(timer)
+        state[k] += [self._get_priority(v, timer)]
+        state[k] += v[:]
 
         # state[k] += [self.is_inside(k, self._id)]
         return state
@@ -263,6 +280,8 @@ class IntersectionManager:
             +1 if the vehicle has priority.
             -1 if the vehicle hasn't priority
         """
+        # 根据车辆所处queue和当前时间，获取优先级
+        # 一个循环里，被分为了四段，每一段允许一个方位的queue通行,顺序是N,S,E,W
         queue = np.where(np.array(v[-5:-1]) == 1.0)[0][0]
 
         quarter = self.cycle//4
@@ -283,6 +302,9 @@ class IntersectionManager:
             return -1.0
         return -1.0
 
+    '''
+    把其他车辆的state也加进去
+    '''
     def set_other_vehicles(self, state, rw_data, k): # 更新其他车辆状态
         i = self._input_variables + self.extra_variables # 参数计数（当前只有主控信息）
 
@@ -351,8 +373,10 @@ class IntersectionManager:
             action = 0
         self.actions[veh] = action#.cpu() 将动作保存再动作字典中，键值为车辆的id
 
-    def select_actions(self): # 所有车辆的动作选择
-        if self.raw_data and not self.raw_data == [-1]: # 如果有raw_data，遍历其中所有车辆
+    # 把一个车辆的状态向量，输入到强化学习框架里，得到对应的action
+    # 循环所有车辆，得到所有车辆的action到一个数组中，返回这个数组
+    def select_actions(self):
+        if self.raw_data and not self.raw_data == [-1]:
             # print('There are something')
             # with ThreadPoolExecutor(max_workers=3) as executor:
                 # future = executor.map(self.select_actions_mp, self.raw_data)
@@ -387,8 +411,10 @@ class IntersectionManager:
                 self.actions[k] = action#.cpu() # 更新动作列表
         return self.actions
 
-    def perform_actions(self): # 所有车辆的动作执行
-        if self.actions: # 如果动作列表不为空，遍历之
+    # 执行所有的action
+    # 貌似只改变速度
+    def perform_actions(self):
+        if self.actions:
             for k, v in self.actions.items():
                 try:
                     # traci.vehicle.setSpeedMode(k, 31)
@@ -403,7 +429,9 @@ class IntersectionManager:
     def obtain_exit(self): # 得到退出标志位
         return self._exit
 
-    def obtain_collisions(self): # 获取碰撞情况
+    # SUMO直接就有检测碰撞的api
+    # 这里只是对碰撞信息进行打印，并惩罚相应车辆reward
+    def obtain_collisions(self):
         # Obtain the number of vehicles involved in collision:
         collision_veh = set(traci.simulation.getCollidingVehiclesIDList()) # 获取碰撞集合
         if collision_veh: # 如果碰撞，退出位设置为1，返回碰撞次数，没有就返回0
@@ -413,10 +441,10 @@ class IntersectionManager:
 
             for veh in collision_veh: # 每次碰撞，奖励列表添加一项-10，更新碰撞车辆的末尾符号位为1，表明发生了碰撞
                 self.rewards[veh] += -10
-                # traci.vehicle.setSpeed(veh, 0.01) # Le pongo una velocidad baja para que suba el tiempo medio de espera y joda al sistema
+                # traci.vehicle.setSpeed(veh, 0.01) # 将车辆速度降低，以增加平均等待时间并干扰系统
                 # self.new_state[veh][-1] = 1
                 try:
-                    self.new_state[veh][-1] = 1
+                    self.new_state[veh][-1] = 1 # 这里没看懂为什么要改？state最后一个参数是什么？
                     self._exit = True
 
                 except Exception as e:
@@ -465,7 +493,9 @@ class IntersectionManager:
                     delay = 1 - speed/max_speed # 计算一个delay值，似乎是逼迫速度提高的量
                     wt = self._traci.vehicle.getWaitingTime(k) # 得到停留时间
                     acc_wt = self._traci.vehicle.getAccumulatedWaitingTime(k) # 得到累计停留时间
-
+                    '''
+                    奖励函数公式
+                    '''
                     rew = w1*delay + w2*wt + w3*acc_wt  # 根据以上数据计算该步奖励
                     if k in self.rewards: # 在第k个量中增加该步奖励
                         self.rewards[k] += rew #-stepLength #-(rew * low_speed * speed_dev * factor) #-stepLength * low_speed * speed_dev * factor #-stepLength self.rewards[k]*1
@@ -575,23 +605,7 @@ class IntersectionManager:
         else:
             return 0
 
-    def obtain_queue(self, x, y): # 得到当前车辆所在的队列
-        if x >= 0 and y >= 0:  # E wueue
-            return 2
-
-        elif x < 0 and y >= 0:  # N queue
-            return 0
-
-        elif x >= 0 and y < 0:  # S queue
-            return 1
-
-        elif x < 0 and y < 0:  # W queue
-            return 3
-
-        else:
-            return 4
-
-    def obtain_state(self): # 得到交叉口内状态
+    def obtain_state(self):
 
         vehicles = self._obtain_vehicles_in_intersection()
         if not vehicles == -1 and not vehicles == set():
@@ -608,7 +622,8 @@ class IntersectionManager:
                                                   self._max_dist_detect,
                                                   [tc.VAR_ROAD_ID]) # 向路由订阅一定范围内的车辆信息，注册了一个回调函数，在车辆数目变化时返回状态更新
 
-            vehicles = traci.junction.getContextSubscriptionResults(self._id) # 得到路口车辆列表
+            vehicles = traci.junction.getContextSubscriptionResults(self._id)
+            # 返回的vehicles是包含车辆信息的字典，键是车辆的标识符，值是包含车辆信息的字典
 
             if vehicles: # 如果有车，调用rma
                 # print(f'\n Found {len(vehicles)} vehicles before filtering')
@@ -624,12 +639,20 @@ class IntersectionManager:
             print(traceback.format_exc())
             return 0
 
-    def _remove_moving_away(self, j, v): # j 交叉口id，车辆字典v
+    def _remove_moving_away(self, j, v):
+        # j代表交叉路口ID，v就是通过sumoapi获取的车辆字典集合
         """ Obtain the vehicles that are aproaching the intersection or are inside. """
         # stepLength = traci.simulation.getDeltaT()
-        for key, val in v.items(): # key id， val 信息
-            if not key in self.vehicles_removed: # 如果车辆不在vr列表
-                if not (val[tc.VAR_ROAD_ID][-2:] == j) and not (val[tc.VAR_ROAD_ID][:1+len(j)] == f':{j}'): # 看车辆是不是在远离交叉口，如果车辆的道路id既不是以交叉口id结尾，又不是以其开头，就认为是
+        
+        # 更新当前所有车辆的状态，这里的状态指车辆正在approach/inside/moving away交叉路口
+        # 我这里之所以说更新，是因为以下的for循环把正在远离（成功通行）的车辆加入到了一个类成员变量self.vehicles_removed里
+        # 并且把所有已通行车辆的奖励加上
+        for key, val in v.items():
+            # 如果车辆不在vehicles_removed（已通行集合）里
+            if not key in self.vehicles_removed:
+                # val[tc.VAR_ROAD_ID] === ':xx'; 
+                # 其中xx表示交叉路口ID，前面的冒号是对车辆此时在交叉路口的状态标志，如果是冒号就代表在交叉路口里
+                if not (val[tc.VAR_ROAD_ID][-2:] == j) and not (val[tc.VAR_ROAD_ID][:1+len(j)] == f':{j}'):
                     # speed = traci.vehicle.getSpeed(key)
                     # neg_speed = 1 + np.abs(speed - self.actions[key])
                     # traci.vehicle.setSpeedMode(key, 31)
@@ -641,7 +664,10 @@ class IntersectionManager:
                     # neg_speed = 1 + np.abs(speed - self.actions[key])
                     self.rewards[key] += 10 #-stepLength
 
-        vehicles = set() # 再来一个存储正在接近交叉口的列表
+        # 这里体现了函数名称_remove_moving_away，剔除已通行车辆，因为这些车辆已经对交叉路口通行无影响
+        # 简单粗暴，重新定义新的set，然后把val[tc.VAR_ROAD_ID]==':{j}'的车加进去，然后返回
+        # 为了重复加入已通行车辆，还设置了self.vehicles_first_time_outside，表示车辆第一次被记录在已通行集合里
+        vehicles = set()
         for veh, val in v.items():
             if (val[tc.VAR_ROAD_ID][-2:] == j): # If vehicles are approaching the intersection 车辆道路id以交叉口id开头，认为是
                 vehicles.add(veh)
@@ -701,7 +727,7 @@ class IntersectionManager:
         rel_x = self.transform_position(rel_x)
         rel_y = self.transform_position(rel_y)
 
-        dist = math.hypot((center_x - x), (center_y - y)) / self._max_dist_detect # Return the Euclidean norm
+        dist = math.hypot((center_x - x), (center_y - y)) / self._max_dist_detect # 返回车辆与路口中央的欧几里得距离
         dist = self.transform_dist(dist)
 
         speed = self._traci.vehicle.getSpeed(veh)/15
@@ -718,6 +744,7 @@ class IntersectionManager:
         way = self._get_way(veh) # Way that the vehicle follows (right:+2; straigh:+1; left:0)/2
         queue = self.obtain_queue(rel_x, rel_y)
         queue = self.transform_queue(queue)
+        # 这里的queue=[W,E,S,N]。在哪个方位就置1，其他0
 
         # wt = self._traci.vehicle.getWaitingTime(veh)
         # acc_wt = self._traci.vehicle.getAccumulatedWaitingTime(veh)
@@ -733,12 +760,14 @@ class IntersectionManager:
 
         return params
 
-    def transform_position(self, pos): # 位置指数映射
+    # Sigmoid函数，归一化到[-a/2, a/2]，约等于[-1, 1]
+    def transform_position(self, pos):
         a = 2.025
         b = 5
         return a/(1 + np.exp(-b*pos)) - a/2
 
-    def transform_dist(self, dist): # 距离指数映射
+    # 映射到[-c, a-c], 这里约等于[-1, 1]
+    def transform_dist(self, dist):
         a = 2.1
         b = 3
         c = 1.1
@@ -784,7 +813,23 @@ class IntersectionManager:
             print(f'od: {od}')
             return [0,0,0]
 
-    def transform_queue(self, queue): # 返回队列标志位的独热编码
+    def obtain_queue(self, x, y):
+        if x >= 0 and y >= 0:  # E wueue
+            return 2
+
+        elif x < 0 and y >= 0:  # N queue
+            return 0
+
+        elif x >= 0 and y < 0:  # S queue
+            return 1
+
+        elif x < 0 and y < 0:  # W queue
+            return 3
+
+        else:
+            return 4
+    
+    def transform_queue(self, queue):
         if queue == 0:
             queue = [0.0, 0.0, 0.0, 1.0]
         elif queue == 1:

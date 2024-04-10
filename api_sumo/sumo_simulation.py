@@ -143,7 +143,7 @@ class SumoSimulation(object):
         self.seed = seed
         self.flow = flow
 
-        self.im = IntersectionManager('A0', 'pppqw', seed = self.seed)
+        self.im = IntersectionManager('A0', 'pppqw', seed = self.seed) #'pppqw'好像没用
         self.running_reward = -1000
         self.rewards = []
         self.training_records = []
@@ -193,44 +193,44 @@ class SumoSimulation(object):
         self._traci.simulationStep() # 向前一个时间步
 
         # Obtain state
-        states.append(self.im.first_state()) # 状态更新，但是四个全是im方法，没看
-        self.im.control_tls() 
-        self.im.reset_values()
-        self.im.score = 0
+        states.append(self.im.first_state()) # 状态更新，拿到当前交叉口车辆所有状态
+        self.im.control_tls()  # 更改信号灯
+        self.im.reset_values()  # 重置值
+        self.im.score = 0 # 初始化分数
         collisions = [] # 碰撞记录
 
-        while self._traci.simulation.getMinExpectedNumber() > 0:
-            if self._traci.simulation.getTime() % 25 == 0:
+        while self._traci.simulation.getMinExpectedNumber() > 0: # 模拟直至车辆消耗完 
+            if self._traci.simulation.getTime() % 25 == 0: # 隔一段时间打印时间信息
                 print(f'Simulation: {self.i_ep}; Time: {self._traci.simulation.getTime()}')
 
             # Select action based on state
-            actions.append(self.im.select_actions())
+            actions.append(self.im.select_actions()) # 根据状态选择动作，并添加到动作列表
 
             # Perform actions based on state
-            self.im.perform_actions()
-            self._traci.simulationStep()
+            self.im.perform_actions() # 执行动作
+            self._traci.simulationStep() # 模拟时间步前行
 
-            states.append(self.im.update_state())
-            collisions.append(self.im.obtain_collisions())
-            r = self.im.obtain_reward()
-            if r:
+            states.append(self.im.update_state()) # 更新下一步状态
+            collisions.append(self.im.obtain_collisions()) # 更新碰撞
+            r = self.im.obtain_reward() # 更新奖励
+            if r: # 奖励非空，就扩展奖励列表
                 self.rewards.append([self._traci.simulation.getTime(), r])
             # states.append(self.im.update_state())
-            self.im.swap_states()
+            self.im.swap_states() # 更新当前状态
 
 #            print(self._time)
-            self._time = self._time + traci.simulation.getDeltaT()
+            self._time = self._time + traci.simulation.getDeltaT() # 更新时间
             # a.append(self.obtain_loss_time())
 
-            if self._traci.simulation.getTime() > 50000:
+            if self._traci.simulation.getTime() > 50000: # 如果模拟时间过长，清除待处理事件
                 self._traci.simulation.clearPending()
 
-        score = self.im.score
-        self.running_reward = self.running_reward * 0.9 + score * 0.1
+        score = self.im.score # 拿到分数 
+        self.running_reward = self.running_reward * 0.9 + score * 0.1 # 更新运行奖励
         self.training_records.append(TrainingRecord(self.i_ep, self.running_reward))
 
         try:
-            if self.i_ep % 20 == 0:
+            if self.i_ep % 20 == 0: # 每隔20步，保存权重
                 # self.im.agent.save_checkpoint(str(self.flow))
                 self.im.agent.save_weights()
 
@@ -241,16 +241,16 @@ class SumoSimulation(object):
             print("type error: " + str(e))
             print(traceback.format_exc())
 
-        finally:
+        finally: # 最终结束模拟
             self.close_simulation()
             return [self.rewards, TrainingRecord(self.i_ep, self.running_reward), states, actions, collisions]
 
-    def run_test_simulation(self):
+    def run_test_simulation(self): # 测试模拟
         self.init_simulation()
         self._traci.simulationStep()
         self.im.update_state()
         self.im.control_tls()
-        self.im.score = 0
+        self.im.score = 0  
 
         try:
             self.im.agent.load_param()
@@ -416,7 +416,7 @@ class SumoSimulation(object):
 #            self.y.append(0)
 
 
-    def init_simulation(self):
+    def init_simulation(self): # 初始化模拟
 
         # *Deprecated* =======================================================
         # self.__create_files()
@@ -458,11 +458,13 @@ class SumoSimulation(object):
               '--tls.guess', 'true',
               '--seed', str(self.seed),
               '-o', 'sumodata/net_'+ str(self.nrows)+'_'+str(self.ncols)+'.xml']
-
+        '''
+        拿到进行路网生成的参数，包括行列数、长度。。
+        '''
         # p = subprocess.run(command, check=True, stdout=subprocess.PIPE, universal_newlines=True)
         # print(p.stdout)
         # print('Done!')
-        self.create_route_files_v2()
+        self.create_route_files_v2() # 创建路网文件
         # =============================================================================
         #         generate the pedestrians for this simulation
 
@@ -481,7 +483,7 @@ class SumoSimulation(object):
         # =============================================================================
         #         import time
         #         time = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
-        if not self.gui:
+        if not self.gui: # 创建一个新线程执行sumo cmd或者sumo gui
             self.process = subprocess.Popen([self.sm,
                                              '-n=sumodata/net_'+ str(self.nrows)+'_'+str(self.ncols)+'.xml',
                                               '-r=sumodata/veh_routes_'+str(self.nrows)+'_'+str(self.ncols)+'.xml',
@@ -528,44 +530,44 @@ class SumoSimulation(object):
             #                                   '-X=never',
             #                                   '--remote-port='+str(self.port)])
 
-        self._traci.init(self.port)
+        self._traci.init(self.port) # 初始化traci控制器与sumo进程交互
 
-    def close_simulation(self):
+    def close_simulation(self): # 关闭模拟，杀死进程
         """Close the simulation."""
         self._traci.close()
         self.process.terminate()
         self.process.kill()
 
-    def create_route_files_v2(self):
+    def create_route_files_v2(self): # 车辆路线文件生成
         # print('Creating routes')
         self.process = subprocess.Popen([self.sm,
                                  '-n=sumodata/net_'+ str(self.nrows)+'_'+str(self.ncols)+'.xml',
                                  '--remote-port='+str(9999),
-                                 ])
-        self._traci.init(9999)
+                                 ]) # 用一个子进程执行路网文件的加载
+        self._traci.init(9999) # 初始化traci和这个进程的通信
 
-        junctions = traci.junction.getIDList()
-        borders = []
+        junctions = traci.junction.getIDList() # 获取交叉路口列表
+        borders = [] # 拿到边界路口
         for j in junctions:
             if str(j).startswith(('top', 'bottom', 'left', 'right')):
                 borders.append(j)
 
-        self.__create_vehicles_route_file(borders)
+        self.__create_vehicles_route_file(borders) # 创建路线
         # edges = traci.edge.getIDList()
         # borders = []
         # for e in edges:
         #     if not str(e).startswith(':'):
         #         borders.append(e)
         # self.__create_peds_route_file()
-        self._traci.close()
+        self._traci.close() # 关闭连接
         # print('Routes created')
 
     def __create_vehicles_route_file(self, borders):
         with open('sumodata/veh_routes_' + str(self.nrows) + '_' +\
-                  str(self.ncols) + '.xml', 'w') as r:
-            r.write('<routes>\n')
-            for ct in self.ss.iter_car_types():
-                r.write(repr(ct))
+                  str(self.ncols) + '.xml', 'w') as r: # 打开路线文件
+            r.write('<routes>\n') # 起始标记
+            for ct in self.ss.iter_car_types(): # 遍历车辆
+                r.write(repr(ct)) # 车辆的定义类型
 
             # dic = {'N': 'top',
             #        'S': 'bottom',
@@ -582,7 +584,7 @@ class SumoSimulation(object):
             #         fl['toJunction'] = d
             #         r.write(repr(fl))
 
-            duration = self.simulation_duration #5*60
+            duration = self.simulation_duration #5*60 模拟持续时间
             # dens = [200,300,400,500,600,700,800]
 
             # ================================================================
@@ -595,25 +597,25 @@ class SumoSimulation(object):
             # ================================================================
             # Si prob=1 entonces el flujo que se está simulando es 3600veh/h
 
-            dens = self.flow  # veh/h/route
+            dens = self.flow  # veh/h/route 车流密度
 
-            if dens > 3600:
+            if dens > 3600: # 不得超过3600
                 print('WARNING: la densidad no puede ser mayor de 3600, set:3600')
                 dens = 3600
 
-            prob = dens/3600  # (veh/h)/(veh/h) se queda un ratio adimensional
-            for o in borders:
-                for d in borders:
+            prob = dens/3600  # (veh/h)/(veh/h) se queda un ratio adimensional 车辆生成概率
+            for o in borders: 
+                for d in borders: # 从边界路口列表遍历选取起止点
                     if not o == d:
-                        fid = o+'_'+d
+                        fid = o+'_'+d # 编码路线
                         r.write('\t<flow id="' + fid +
                                 '" begin="' + str(0) +
                                 '" end="' + str(duration) +
                                 '" probability="' + str(prob) +
                                 '" type="car_diesel" departSpeed="max"' +
                                 ' fromJunction="' + o +
-                                '" toJunction="' + d + '" />\n')
-            r.write('</routes>')
+                                '" toJunction="' + d + '" />\n') # 写入路线信息
+            r.write('</routes>') # 结束符号
 
     def __create_peds_route_file(self):
         command = ['api_sumo/randomTrips.py',

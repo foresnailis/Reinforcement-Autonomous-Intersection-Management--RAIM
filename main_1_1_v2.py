@@ -50,7 +50,7 @@ else:
 #%
 # 此处需修改为本地仓库的路径
 if pltf == "Windows":
-    root = 'D:/TongjiCourse/Multi-Agent/Reinforcement-Autonomous-Intersection-Management--RAIM'
+    root = 'D:/工作文件/常用项目/Reinforcement-Autonomous-Intersection-Management--RAIM'
 else:
     root = '/root/RAIM'
 

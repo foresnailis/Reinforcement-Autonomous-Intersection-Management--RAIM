@@ -274,7 +274,7 @@ class SumoSimulation(object):
 
 
 
-    def obtain_loss_time(self):
+    def obtain_loss_time(self): # 时间损失，由于迟到而造成的负奖励上升
         try:
             junctionID = 'A0'
             dist = 200.0
@@ -326,7 +326,7 @@ class SumoSimulation(object):
         return {key:val for key, val in v.items() if (val[tc.VAR_ROAD_ID][-2:] == j) or (val[tc.VAR_ROAD_ID][:1+len(j)] == f':{j}')} # If vehicles are approaching the intersection
 
 #
-    def getTripinfo(self):
+    def getTripinfo(self): # 从tripinfo中取得行程信息
         total_trips = 0
         total_timeloss = 0
         total_duration = 0
@@ -382,7 +382,7 @@ class SumoSimulation(object):
         self._time = 0
         self.cars = {}
         self.wt = {}
-        self.co2em = {}
+        self.co2em = {} # 每条边的co2排放
         for edge in self.sg.iter_edges():
             self.co2em[edge.id] = [0,0,0,0,0,0,0]
         self.num_veh = 0

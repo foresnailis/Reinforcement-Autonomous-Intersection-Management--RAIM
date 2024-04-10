@@ -55,7 +55,7 @@ class IntersectionManager:
         self.actions = defaultdict(list) # 动作记录
         self.rewards = defaultdict(list) # 奖励记录
         self.reward = -999 # 总奖励
-        self.score = 0 # 得分？
+        self.score = 0 # 得分
         self.vehicles_removed = set() # 被移除的车辆
         self.vehicles_first_time_outside = set() # 首次离开交叉口的车辆
 

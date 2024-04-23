@@ -190,7 +190,7 @@ class SumoSimulation(object):
         # else:
             # self.sa.reset_algorithm(self)
 
-        TrainingRecord = namedtuple('TrainingRecord', ['ep', 'reward']) # 训练记录：轮次与奖励
+        TrainingRecord = namedtuple('TrainingRecord', ['ep', 'reward', 'score']) # 训练记录：轮次与奖励
 
         self.reset_statistics() # 重置数据
         
@@ -245,7 +245,7 @@ class SumoSimulation(object):
         # running_reward=-1000,为了尽可能快的让所有车通行
         score = self.im.score # 拿到分数 
         self.running_reward = self.running_reward * 0.9 + score * 0.1 # 更新运行奖励
-        self.training_records.append(TrainingRecord(self.i_ep, self.running_reward))
+        self.training_records.append(TrainingRecord(self.i_ep, self.running_reward, score))
 
         try:
             if self.i_ep % 20 == 0: # 每隔20步，保存权重
@@ -261,7 +261,7 @@ class SumoSimulation(object):
 
         finally: # 最终结束模拟
             self.close_simulation()
-            return [self.rewards, TrainingRecord(self.i_ep, self.running_reward), states, actions, collisions]
+            return [self.rewards, TrainingRecord(self.i_ep, self.running_reward, score), states, actions, collisions]
 
     def run_test_simulation(self): # 测试模拟
         self.init_simulation()
@@ -271,7 +271,7 @@ class SumoSimulation(object):
         self.im.score = 0  
 
         try:
-            self.im.agent.load_param()
+            self.im.agent.load_weights()
             while self._traci.simulation.getMinExpectedNumber() > 0:
                 if self._traci.simulation.getTime() % 30 == 0:
                     print(f'Simulation: {self.i_ep}; Time: {self._traci.simulation.getTime()}')

@@ -50,7 +50,7 @@ else:
 #%
 # 此处需修改为本地仓库的路径
 if pltf == "Windows":
-    root = 'D:/工作文件/常用项目/Reinforcement-Autonomous-Intersection-Management--RAIM'
+    root = 'D:/TongjiCourse/Multi-Agent/Reinforcement-Autonomous-Intersection-Management--RAIM'
 else:
     root = '/root/RAIM'
 
@@ -92,7 +92,7 @@ escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
 
 # Crea la simulación
 nlanes = 2
-simulacion = SumoSimulation(red_manhattan, gui=False, lanes=nlanes,
+simulacion = SumoSimulation(red_manhattan, gui=True, lanes=nlanes,
                             nrows=nrows, ncols=ncols, leng=length,
                             seed=SEED, flow=25)
 
@@ -107,12 +107,13 @@ Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 # simulacion.im.agent.load_imitationLearning(path='ckpt/m_4096_2048_1024_0.0209.pkl')
 # simulacion.im.agent.load('ckpt/TD3/150')
 # simulacion.im.agent.load('ckpt/TD3/300_best')
+simulacion.im.agent.load_weights()
 
 
 #%
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
-epochs = 10 # 训练轮次
+epochs = 150 # 训练轮次
 rewards = [] # 训练奖励值
 training_records = [] # 训练统计数据
 training_tripinfo = [] # 训练过程车辆行程信息
@@ -164,6 +165,7 @@ try:
                 writer.add_scalar('Global/# of Vehicles', ti[0], i)
                 writer.add_scalar('Global/# Collisions', np.sum(c), i)
                 writer.add_scalar('Global/Reward', t[1], i)
+                writer.add_scalar('Global/Score', t[2], i)
 
                 writer.add_scalar('Timeloss/Total', ti[1], i)
                 writer.add_scalar('Duration/Total', ti[2], i)
@@ -199,7 +201,7 @@ try:
                     # simulacion.im.agent.save_checkpoint(str(flow) + '_best')
                     simulacion.im.agent.save('ckpt/TD3/' + str(flow) + '_best')
 
-                print(f'Simulation: {epoch}; Mean duration: {ti[5]:.2f}, Mean wtime: {ti[6]:.2f}, Mean timeloss: {ti[7]:.2f}, flow: {simulacion.flow}, reward: {t[1]}\n')
+                print(f'Simulation: {epoch}; Mean duration: {ti[5]:.2f}, Mean wtime: {ti[6]:.2f}, Mean timeloss: {ti[7]:.2f}, flow: {simulacion.flow}, reward: {t[1]}, score: {t[2]}\n')
                 # print(f'Training records: {t}')
             except Exception as e:
                 print("type error: " + str(e))

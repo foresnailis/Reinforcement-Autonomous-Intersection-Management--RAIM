@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2024-04-03 15:24:43 by Eclipse SUMO sumo Version 1.19.0
+<!-- generated on 2024-04-23 21:44:52 by Eclipse SUMO GUI Version 1.19.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
@@ -37,13 +37,10 @@
     </traci_server>
 
     <random_number>
-        <seed value="0"/>
+        <seed value="2024"/>
     </random_number>
 
 </configuration>
 -->
 
 <tripinfos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/tripinfo_file.xsd">
-    <tripinfo id="right0_top0.0" depart="0.50" departLane="right0A0_2" departPos="3.10" departSpeed="15.51" departDelay="0.00" arrival="29.25" arrivalLane="A0top0_2" arrivalPos="188.10" arrivalSpeed="15.40" duration="28.75" routeLength="384.55" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="3.22" rerouteNo="1" devices="tripinfo_right0_top0.0 routing_right0_top0.0 emissions_right0_top0.0" vType="car_diesel" speedFactor="1.12" vaporized="">
-        <emissions CO_abs="6.842796" CO2_abs="67261.574347" HC_abs="3.086692" PMx_abs="1.318096" NOx_abs="309.148783" fuel_abs="21158.508898" electricity_abs="0"/>
-    </tripinfo>

@@ -7,16 +7,16 @@
 	<vType id="delivery" minGap="0.5" vClass="delivery" emissionClass="HBEFA3/HDV_D_EU5" carFollowModel="Krauss" probability="0.1" />
 	<vType id="bus" minGap="0.5" vClass="bus" emissionClass="HBEFA3/Bus" carFollowModel="Krauss" probability="0.1" />
 	<vTypeDistribution id="typedist1" vTypes="car_gasoline car_diesel motorcycle moped delivery bus" />
-	<flow id="bottom0_left0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="bottom0" toJunction="left0" />
-	<flow id="bottom0_right0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="bottom0" toJunction="right0" />
-	<flow id="bottom0_top0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="bottom0" toJunction="top0" />
-	<flow id="left0_bottom0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="left0" toJunction="bottom0" />
-	<flow id="left0_right0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="left0" toJunction="right0" />
-	<flow id="left0_top0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="left0" toJunction="top0" />
-	<flow id="right0_bottom0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="right0" toJunction="bottom0" />
-	<flow id="right0_left0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="right0" toJunction="left0" />
-	<flow id="right0_top0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="right0" toJunction="top0" />
-	<flow id="top0_bottom0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="top0" toJunction="bottom0" />
-	<flow id="top0_left0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="top0" toJunction="left0" />
-	<flow id="top0_right0" begin="0" end="300" probability="0.15444444444444444" type="car_diesel" departSpeed="max" fromJunction="top0" toJunction="right0" />
+	<flow id="bottom0_left0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="bottom0" toJunction="left0" />
+	<flow id="bottom0_right0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="bottom0" toJunction="right0" />
+	<flow id="bottom0_top0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="bottom0" toJunction="top0" />
+	<flow id="left0_bottom0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="left0" toJunction="bottom0" />
+	<flow id="left0_right0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="left0" toJunction="right0" />
+	<flow id="left0_top0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="left0" toJunction="top0" />
+	<flow id="right0_bottom0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="right0" toJunction="bottom0" />
+	<flow id="right0_left0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="right0" toJunction="left0" />
+	<flow id="right0_top0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="right0" toJunction="top0" />
+	<flow id="top0_bottom0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="top0" toJunction="bottom0" />
+	<flow id="top0_left0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="top0" toJunction="left0" />
+	<flow id="top0_right0" begin="0" end="300" probability="0.013888888888888888" type="car_diesel" departSpeed="max" fromJunction="top0" toJunction="right0" />
 </routes>

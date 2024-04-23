@@ -36,9 +36,9 @@ POLICY_NOISE = 0.1
 POLICY_NOISE_CLIP = 0.2
 
 
-actor_weights_file = 'weights_actor.pt'
-critic1_weights_file = 'weights_critic1.pt'
-critic2_weights_file = 'weights_critic2.pt'
+actor_weights_file = 'ckpt/weights_actor.pt'
+critic1_weights_file = 'ckpt/weights_critic1.pt'
+critic2_weights_file = 'ckpt/weights_critic2.pt'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device('cpu')
@@ -202,6 +202,7 @@ class Agent():
         torch.save(self.critic2_local.state_dict(), critic2_weights_file)
 
     def load_weights(self):
+        print("Load weights")
         self.actor_local.load_state_dict(torch.load(actor_weights_file))
         self.critic1_local.load_state_dict(torch.load(critic1_weights_file))
         self.critic2_local.load_state_dict(torch.load(critic2_weights_file))

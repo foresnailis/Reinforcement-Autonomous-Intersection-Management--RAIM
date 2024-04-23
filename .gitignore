@@ -60,8 +60,3 @@ profiler.dat
 
 # Ignore run folder
 /runs/
-
-# Ignore model weights
-weights_actor.pt
-weights_critic1.pt
-weights_critic2.pt

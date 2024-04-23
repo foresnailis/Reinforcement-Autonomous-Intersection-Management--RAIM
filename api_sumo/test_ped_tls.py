@@ -7,7 +7,7 @@ Created on Thu Jun 18 18:45:14 2020
 """
 
 
-    """check whether a person has requested to cross the street""" '''什么玩意'''
+"""check whether a person has requested to cross the street""" '''什么玩意'''
 
 activeRequest = False # 行人是否有请求
 greenTimeSoFar = 0  # 绿灯亮了多长时间

@@ -76,7 +76,7 @@ random.seed(SEED)
 
 # Writer will output to ./runs/ directory by default
 writer = SummaryWriter()
-#%%
+
 # Params
 nrows = 1
 # Number of columns:
@@ -92,7 +92,7 @@ escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
 
 # Crea la simulación
 nlanes = 2
-simulacion = SumoSimulation(red_manhattan, gui=True, lanes=nlanes,
+simulacion = SumoSimulation(red_manhattan, gui=False, lanes=nlanes,
                             nrows=nrows, ncols=ncols, leng=length,
                             seed=SEED, flow=25)
 

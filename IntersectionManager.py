@@ -53,7 +53,7 @@ class IntersectionManager:
         self.new_raw_data = defaultdict(list) # 下一个原始数据
 
         self.actions = defaultdict(list) # 动作记录
-        self.rewards = defaultdict(list) # 奖励记录
+        self.rewards = defaultdict(float) # 奖励记录
         self.reward = -999 # 总奖励
         self.score = 0 # 得分
         self.vehicles_removed = set() # 被移除的车辆
@@ -148,7 +148,7 @@ class IntersectionManager:
         # self._score = 0
 
     def reset_values(self): # 重置状态
-        self.rewards = defaultdict(list) # 奖励记录重置
+        self.rewards = defaultdict(float) # 奖励记录重置
         self.vehicles_removed = set() # 车辆列表重置
         self.actions = defaultdict(list) # 动作列表重置
         self.vehicles_first_time_outside = set() # 首次离开的车辆列表重置

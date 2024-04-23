@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jun 10 16:49:54 2020
-
-@author: anton
-"""
-
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -72,7 +65,6 @@ SEED = 42
 torch.manual_seed(SEED)
 np.random.seed(SEED)
 random.seed(SEED)
-#%%
 # Params
 nrows = 1
 # Number of columns:
@@ -82,11 +74,10 @@ nlanes = 2 # 车道数
 # Lenght (m):
 length = 200
 
-# Estas líneas son *heredadas* y van a estar deprecated en la versión v3
 red_manhattan = ManhattanGraph(3, 3, 300)
-escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
+# escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
+escenario = ScenarioFour(red_manhattan)
 
-# Crea la simulación
 nlanes = 2
 simulacion = SumoSimulation(red_manhattan, gui=True, lanes=nlanes,
                             nrows=nrows, ncols=ncols, leng=length,
@@ -96,7 +87,6 @@ simulacion = SumoSimulation(red_manhattan, gui=True, lanes=nlanes,
 # 控制交通灯的算法。V3中折旧
 Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 
-#%
 # simulacion.im.agent.load_param()
 # simulacion.im.agent.load_checkpoint(checkpoint_path='ckpt/ep_collisions_70.pth.tar')
 # simulacion.im.agent.load_checkpoint(step=15)
@@ -104,17 +94,11 @@ Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 # simulacion.im.agent.load('ckpt/TD3/150')
 # simulacion.im.agent.load('ckpt/TD3/300_best')
 
-
-#%
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
 # simulacion.create_route_files_v2()
 
 flow = 50
-i = 0
-change_seed_every = 5
-best_timeloss = 9999 # 记录最佳时间损失
-best_collisions = 9999 # 记录最佳碰撞次数
 
 simulacion.seed = 2024 # 基于当前轮次的索引更新了随机种子，以改变随机性
 simulacion.change_algorithm(Fixed) # 设置控制算法
@@ -131,10 +115,6 @@ ti = simulacion.getTripinfo() # 获取仿真车辆的行程信息
 
 if ti[0] > 0: # No ha habido error en tripInfo por el # de veh 检查车辆行程信息是否有效
     print(f'Mean duration: {ti[5]:.2f}, Mean wtime: {ti[6]:.2f}, Mean timeloss: {ti[7]:.2f}, flow: {simulacion.flow}\n')
-    # print(f'Training records: {t}')
-
-print(traceback.format_exc())
-# simulacion.close_simulation()
 
 elapsed_time = time.time() - start_time
 print(time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))

@@ -142,7 +142,7 @@ class IntersectionManager:
         state_size = self.observation_space # 状态空间大小
         action_size = action_space # 动作空间大小
         self.agent = Agent(state_size, action_size) # 代理
-        self.LEARN_EVERY = 60 # 学习频率
+        self.LEARN_EVERY = 10 # 学习频率
         self.epoch = 0 # 轮次
 
         # self._score = 0
@@ -435,8 +435,8 @@ class IntersectionManager:
         # Obtain the number of vehicles involved in collision:
         collision_veh = set(traci.simulation.getCollidingVehiclesIDList()) # 获取碰撞集合
         if collision_veh: # 如果碰撞，退出位设置为1，返回碰撞次数，没有就返回0
-            print('WARNING!!!! --- collided vehicles on the road')
-            print(collision_veh)
+            # print('WARNING!!!! --- collided vehicles on the road')
+            # print(collision_veh)
             self._exit = True 
 
             for veh in collision_veh: # 每次碰撞，奖励列表添加一项-10，更新碰撞车辆的末尾符号位为1，表明发生了碰撞
@@ -558,9 +558,8 @@ class IntersectionManager:
 
                 except Exception as e:
                     # print(f"Error while obtain reward, the vehicle doesn't exist22222")
-                    # print(e)
-                    # print(traceback.format_exc())
                     print(e)
+                    # print(traceback.format_exc())
                 # else:
                     # print('Look at me!')
                 # try:

@@ -153,6 +153,7 @@ class Agent():
             Q_expected = self.critic1_local(states, actions)
             errors1 = np.abs((Q_expected - Q_targets).detach().cpu().numpy())
             critic1_loss = self.mse(Q_expected, Q_targets, is_weights)
+            self.Q1loss = critic1_loss.item()
             # Minimize the loss
             self.critic1_optimizer.zero_grad()
             critic1_loss.backward()
@@ -165,6 +166,7 @@ class Agent():
             # Compute critic2 loss
             Q_expected = self.critic2_local(states, actions)
             critic2_loss = self.mse(Q_expected, Q_targets, is_weights)
+            self.Q2loss = critic2_loss.item()
             # Minimize the loss
             self.critic2_optimizer.zero_grad()
             critic2_loss.backward()
@@ -189,8 +191,7 @@ class Agent():
                 self.soft_update(self.critic1_local, self.critic1_target, TAU)
                 self.soft_update(self.critic2_local, self.critic2_target, TAU)
                 self.soft_update(self.actor_local, self.actor_target, TAU)
-            self.Q1loss = critic1_loss.item()
-            self.Q2loss = critic2_loss.item()
+           
 
 
     def soft_update(self, local_model, target_model, tau):

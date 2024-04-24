@@ -560,7 +560,7 @@ class IntersectionManager:
                     # print(f"Error while obtain reward, the vehicle doesn't exist22222")
                     # print(e)
                     # print(traceback.format_exc())
-                    print('')
+                    print(e)
                 # else:
                     # print('Look at me!')
                 # try:

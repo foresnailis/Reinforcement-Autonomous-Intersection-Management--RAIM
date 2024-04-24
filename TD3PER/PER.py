@@ -247,7 +247,9 @@ class ER():
 
     def sample(self, n):
         idxs, minibatch = self.tree.sample(n)
-        return idxs, minibatch
+        
+        is_weights = np.ones(n)
+        return idxs, minibatch, is_weights
 
     def batch_update(self, idxs, errors):
         pass

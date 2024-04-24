@@ -197,7 +197,7 @@ class Agent():
                 self.soft_update(self.actor_local, self.actor_target, TAU)
             self.Q1loss /= LEARN_BATCH
             self.Q2loss /= LEARN_BATCH
-            self.Aloss /= (LEARN_BATCH / 2)
+            self.Aloss /= (LEARN_BATCH / UPDATE_ACTOR_EVERY)
            
 
 

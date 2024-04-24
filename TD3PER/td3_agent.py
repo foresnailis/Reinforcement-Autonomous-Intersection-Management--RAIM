@@ -178,7 +178,7 @@ class Agent():
                 # Compute actor loss
                 actions_pred = self.actor_local(states)
                 actor_loss = -self.critic1_local(states, actions_pred).mean()
-                self.Aloss = actor_loss
+                self.Aloss = actor_loss.item()
                 # Minimize the loss
                 self.actor_optimizer.zero_grad()
                 actor_loss.backward()
@@ -189,8 +189,8 @@ class Agent():
                 self.soft_update(self.critic1_local, self.critic1_target, TAU)
                 self.soft_update(self.critic2_local, self.critic2_target, TAU)
                 self.soft_update(self.actor_local, self.actor_target, TAU)
-            self.Q1loss = critic1_loss
-            self.Q2loss = critic2_loss
+            self.Q1loss = critic1_loss.item()
+            self.Q2loss = critic2_loss.item()
 
 
     def soft_update(self, local_model, target_model, tau):

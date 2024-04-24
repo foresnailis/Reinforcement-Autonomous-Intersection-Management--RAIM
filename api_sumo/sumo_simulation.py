@@ -263,7 +263,7 @@ class SumoSimulation(object):
             self.close_simulation()
             return [self.rewards, TrainingRecord(self.i_ep, self.running_reward, score), states, actions, collisions, self.im.agent.Q1loss, self.im.agent.Q2loss, self.im.agent.Aloss]
 
-    def run_test_simulation(self): # 测试模拟
+    def run_test_simulation(self, weight_path): # 测试模拟
         self.init_simulation()
         self._traci.simulationStep()
         self.im.update_state()
@@ -271,7 +271,7 @@ class SumoSimulation(object):
         self.im.score = 0  
 
         try:
-            self.im.agent.load_weights()
+            self.im.agent.load_weights(weight_path)
             while self._traci.simulation.getMinExpectedNumber() > 0:
                 if self._traci.simulation.getTime() % 30 == 0:
                     print(f'Simulation: {self.i_ep}; Time: {self._traci.simulation.getTime()}')

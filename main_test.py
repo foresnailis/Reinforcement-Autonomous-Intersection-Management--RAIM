@@ -109,7 +109,7 @@ print(time.strftime("Elapsed time: %H:%M:%S", time.gmtime(elapsed_time)))
 simulacion.simulation_duration = 5*60
 simulacion.flow = flow
 
-simulacion.run_test_simulation(weight_path='ckpt')  # 执行一次仿真
+simulacion.run_test_simulation(weight_path='ckpt/TD3')  # 执行一次仿真
 
 ti = simulacion.getTripinfo() # 获取仿真车辆的行程信息
 

@@ -216,13 +216,16 @@ class NormalTree():
         self.capacity = int(capacity)
         self.data = np.zeros(capacity, dtype=object)
         self.data_length = 0
+        self.data_iter = 0
 
     def __len__(self):
         return self.data_length
 
-    def add(self, data, ):
-        self.data[self.data_length % self.capacity] = data
-        self.data_length += 1
+    def add(self, data, priority):
+        self.data[self.data_iter % self.capacity] = data
+        self.data_iter += 1
+        if(self.data_length < self.capacity)
+            self.data_length += 1
 
     def sample(self, n):
         idxs = np.random.choice(range(len(self.data)), size=n, replace=False)

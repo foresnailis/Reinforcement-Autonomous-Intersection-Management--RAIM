@@ -116,6 +116,9 @@ class Agent():
             actor_target(state) -> action
             critic_target(state, action) -> Q-value
         """
+        self.Q1loss = 0
+        self.Q2loss = 0
+        self.Aloss = 0
         for i in range(1, LEARN_BATCH+1):
             # print(f'Learning: {i}/{LEARN_BATCH}')
             idxs, experiences, is_weights = self.memory.sample(BATCH_SIZE)
@@ -154,7 +157,7 @@ class Agent():
             Q_expected = self.critic1_local(states, actions)
             errors1 = np.abs((Q_expected - Q_targets).detach().cpu().numpy())
             critic1_loss = self.mse(Q_expected, Q_targets, is_weights)
-            self.Q1loss = critic1_loss.item()
+            self.Q1loss += critic1_loss.item()
             # Minimize the loss
             self.critic1_optimizer.zero_grad()
             critic1_loss.backward()
@@ -167,7 +170,7 @@ class Agent():
             # Compute critic2 loss
             Q_expected = self.critic2_local(states, actions)
             critic2_loss = self.mse(Q_expected, Q_targets, is_weights)
-            self.Q2loss = critic2_loss.item()
+            self.Q2loss += critic2_loss.item()
             # Minimize the loss
             self.critic2_optimizer.zero_grad()
             critic2_loss.backward()
@@ -181,7 +184,7 @@ class Agent():
                 # Compute actor loss
                 actions_pred = self.actor_local(states)
                 actor_loss = -self.critic1_local(states, actions_pred).mean()
-                self.Aloss = actor_loss.item()
+                self.Aloss += actor_loss.item()
                 # Minimize the loss
                 self.actor_optimizer.zero_grad()
                 actor_loss.backward()
@@ -192,6 +195,9 @@ class Agent():
                 self.soft_update(self.critic1_local, self.critic1_target, TAU)
                 self.soft_update(self.critic2_local, self.critic2_target, TAU)
                 self.soft_update(self.actor_local, self.actor_target, TAU)
+            self.Q1loss /= LEARN_BATCH
+            self.Q2loss /= LEARN_BATCH
+            self.Aloss /= (LEARN_BATCH / 2)
            
 
 

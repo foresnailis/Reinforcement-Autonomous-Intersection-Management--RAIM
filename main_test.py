@@ -76,12 +76,12 @@ length = 200
 
 red_manhattan = ManhattanGraph(3, 3, 300)
 # escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
-escenario = ScenarioFour(red_manhattan)
-
+# escenario = ScenarioFour(red_manhattan)
+escenario = ScenarioTwo(red_manhattan,prob=100)
 nlanes = 2
 simulacion = SumoSimulation(red_manhattan, gui=True, lanes=nlanes,
                             nrows=nrows, ncols=ncols, leng=length,
-                            seed=SEED, flow=25)
+                            seed=SEED, flow=250)
 
 # Algoritmo para controlar los semáforos. Deprecated in v3
 # 控制交通灯的算法。V3中折旧
@@ -98,9 +98,9 @@ time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
 # simulacion.create_route_files_v2()
 
-flow = 50
+flow = 200
 
-simulacion.seed = 2024 # 基于当前轮次的索引更新了随机种子，以改变随机性
+simulacion.seed = SEED # 基于当前轮次的索引更新了随机种子，以改变随机性
 simulacion.change_algorithm(Fixed) # 设置控制算法
 simulacion.change_scenario(escenario) # 设置交通场景
 

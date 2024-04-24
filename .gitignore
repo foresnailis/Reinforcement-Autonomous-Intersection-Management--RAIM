@@ -59,6 +59,5 @@ profiler/
 profiler.dat
 
 # Ignore run folder
-/runs/
 /results/
 /sumodata/

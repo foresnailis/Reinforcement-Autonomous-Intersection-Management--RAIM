@@ -221,7 +221,7 @@ class NormalTree():
     def __len__(self):
         return self.data_length
 
-    def add(self, data, priority):
+    def add(self, data, ):
         self.data[self.data_iter % self.capacity] = data
         self.data_iter += 1
         if(self.data_length < self.capacity)

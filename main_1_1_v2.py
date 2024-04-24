@@ -107,10 +107,10 @@ Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 # simulacion.im.agent.load_imitationLearning(path='ckpt/m_4096_2048_1024_0.0209.pkl')
 # simulacion.im.agent.load('ckpt/TD3/150')
 # simulacion.im.agent.load('ckpt/TD3/300_best')
-simulacion.im.agent.load_weights()
 
+# weight_path = 'ckpt'
+# simulacion.im.agent.load_weights(weight_path)
 
-#%
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
 epochs = 150 # 训练轮次
@@ -218,4 +218,4 @@ except Exception as e:
 elapsed_time = time.time() - start_time
 print(time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
-simulacion.im.agent.save_weights()
+simulacion.im.agent.save_weights('ckpt/TD3/')

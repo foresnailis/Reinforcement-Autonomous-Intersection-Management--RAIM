@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import copy
+import os
 from collections import namedtuple, deque
 
 from TD3PER.model import Actor, Critic
@@ -36,9 +37,9 @@ POLICY_NOISE = 0.1
 POLICY_NOISE_CLIP = 0.2
 
 
-actor_weights_file = 'ckpt/weights_actor.pt'
-critic1_weights_file = 'ckpt/weights_critic1.pt'
-critic2_weights_file = 'ckpt/weights_critic2.pt'
+actor_weights_file = 'weights_actor.pt'
+critic1_weights_file = 'weights_critic1.pt'
+critic2_weights_file = 'weights_critic2.pt'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device('cpu')
@@ -206,16 +207,22 @@ class Agent():
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)
 
-    def save_weights(self):
-        torch.save(self.actor_local.state_dict(), actor_weights_file)
-        torch.save(self.critic1_local.state_dict(), critic1_weights_file)
-        torch.save(self.critic2_local.state_dict(), critic2_weights_file)
+    def save_weights(self, path='ckpt/TD3/'):
+        actor_weights = os.path.join(path, actor_weights_file)
+        critic1_weights = os.path.join(path, critic1_weights_file)
+        critic2_weights = os.path.join(path, critic2_weights_file)
+        torch.save(self.actor_local.state_dict(), actor_weights)
+        torch.save(self.critic1_local.state_dict(), critic1_weights)
+        torch.save(self.critic2_local.state_dict(), critic2_weights)
 
-    def load_weights(self):
-        print("Load weights")
-        self.actor_local.load_state_dict(torch.load(actor_weights_file))
-        self.critic1_local.load_state_dict(torch.load(critic1_weights_file))
-        self.critic2_local.load_state_dict(torch.load(critic2_weights_file))
+    def load_weights(self, path):
+        actor_weights = os.path.join(path, actor_weights_file)
+        critic1_weights = os.path.join(path, critic1_weights_file)
+        critic2_weights = os.path.join(path, critic2_weights_file)
+        print(f"Load weights:\n{actor_weights}\n{critic1_weights}\n{critic2_weights}")
+        self.actor_local.load_state_dict(torch.load(actor_weights))
+        self.critic1_local.load_state_dict(torch.load(critic1_weights))
+        self.critic2_local.load_state_dict(torch.load(critic2_weights))
 
 
 class OUNoise:

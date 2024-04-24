@@ -122,8 +122,7 @@ class SumTree():
     @property
     def total_priority(self):
         return self.tree[0]  # the root
-
-
+    
 class PER():  # stored as ( s, a, r, s_new, done ) in SumTree
     """
     This PER code is modified version of the code from:
@@ -209,3 +208,46 @@ class PER():  # stored as ( s, a, r, s_new, done ) in SumTree
 
         for idx, p in zip(idxs, ps):
             self.tree.update(idx, p)
+
+
+
+class NormalTree():
+    def __init__(self, capacity):
+        self.capacity = int(capacity)
+        self.data = np.zeros(capacity, dtype=object)
+        self.data_length = 0
+
+    def __len__(self):
+        return self.data_length
+
+    def add(self, data, ):
+        self.data[self.data_length % self.capacity] = data
+        self.data_length += 1
+
+    def sample(self, n):
+        idxs = np.random.choice(range(len(self.data)), size=n, replace=False)
+        minibatch = [self.data[idx] for idx in idxs]
+        return idxs, minibatch
+
+    def batch_update(self, idxs, errors):
+        pass
+
+class ER():
+    def __init__(self, capacity):
+        self.tree = NormalTree(capacity)
+
+    def __len__(self):
+        return len(self.tree)
+
+    def is_full(self):
+        return len(self.tree) >= self.tree.capacity
+
+    def add(self, data, error = None):
+        self.tree.add(data)
+
+    def sample(self, n):
+        idxs, minibatch = self.tree.sample(n)
+        return idxs, minibatch
+
+    def batch_update(self, idxs, errors):
+        pass

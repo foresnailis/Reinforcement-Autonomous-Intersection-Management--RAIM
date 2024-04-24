@@ -4,7 +4,7 @@ import copy
 from collections import namedtuple, deque
 
 from TD3PER.model import Actor, Critic
-from TD3PER.PER import PER
+from TD3PER.PER import PER, ER
 
 import torch
 import torch.nn.functional as F
@@ -78,7 +78,7 @@ class Agent():
         self.noise = OUNoise(action_size)
 
         # Replay memory
-        self.memory = PER(BUFFER_SIZE)
+        self.memory = ER(BUFFER_SIZE)
 
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory."""
@@ -93,7 +93,7 @@ class Agent():
         with torch.no_grad():
             action = self.actor_local(state.view(1, -1)).cpu().data.numpy()
         self.actor_local.train()
-        action += self.noise.sample()
+        # action += self.noise.sample() 探索噪声
         return np.clip(action, -1., 1.)
 
     def reset(self):
@@ -124,6 +124,7 @@ class Agent():
 
             is_weights = torch.from_numpy(is_weights).float().to(device)
 
+            ''' 噪声添加
             # ---------------------------- update critic ---------------------------- #
             # Target Policy Smoothing Regularization: add a small amount of clipped random noises to the selected action
             if POLICY_NOISE > 0.0:
@@ -134,6 +135,8 @@ class Agent():
             else:
                 # Get predicted next-state actions and Q values from target models
                 actions_next = self.actor_target(next_states)
+            '''
+            actions_next = self.actor_target(next_states)
 
             # Error Mitigation
             Q_targets_next = torch.min(\

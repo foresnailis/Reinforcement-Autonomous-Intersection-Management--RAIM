@@ -261,7 +261,7 @@ class SumoSimulation(object):
 
         finally: # 最终结束模拟
             self.close_simulation()
-            return [self.rewards, TrainingRecord(self.i_ep, self.running_reward, score), states, actions, collisions]
+            return [self.rewards, TrainingRecord(self.i_ep, self.running_reward, score), states, actions, collisions, self.im.agent.Q1loss, self.im.agent.Q2loss, self.im.agent.Aloss]
 
     def run_test_simulation(self): # 测试模拟
         self.init_simulation()

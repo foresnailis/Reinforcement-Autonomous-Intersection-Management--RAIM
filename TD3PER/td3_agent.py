@@ -59,6 +59,9 @@ class Agent():
         """
         self.state_size = state_size
         self.action_size = action_size
+        self.Q1loss = 0
+        self.Q2loss = 0
+        self.Aloss = 0
 
         # Actor Network (w/ Target Network)
         self.actor_local = Actor(state_size, action_size).to(device)
@@ -175,6 +178,7 @@ class Agent():
                 # Compute actor loss
                 actions_pred = self.actor_local(states)
                 actor_loss = -self.critic1_local(states, actions_pred).mean()
+                self.Aloss = actor_loss
                 # Minimize the loss
                 self.actor_optimizer.zero_grad()
                 actor_loss.backward()
@@ -185,6 +189,9 @@ class Agent():
                 self.soft_update(self.critic1_local, self.critic1_target, TAU)
                 self.soft_update(self.critic2_local, self.critic2_target, TAU)
                 self.soft_update(self.actor_local, self.actor_target, TAU)
+            self.Q1loss = critic1_loss
+            self.Q2loss = critic2_loss
+
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.

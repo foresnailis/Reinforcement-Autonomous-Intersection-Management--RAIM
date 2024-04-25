@@ -142,7 +142,7 @@ class IntersectionManager:
         state_size = self.observation_space # 状态空间大小
         action_size = action_space # 动作空间大小
         self.agent = Agent(state_size, action_size) # 代理
-        self.LEARN_EVERY = 10 # 学习频率
+        self.LEARN_EVERY = 60 # 学习频率
         self.epoch = 0 # 轮次
 
         # self._score = 0

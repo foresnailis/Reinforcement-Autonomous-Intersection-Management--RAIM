@@ -147,7 +147,7 @@ try:
             simulacion.simulation_duration = 5*60
             simulacion.flow = np.random.randint(25, 600)
 
-        [r,t,s,a,c,q1loss,q2loss,aloss] = simulacion.run_simulation()  # 执行一次仿真
+        [r,t,s,a,c,q1loss,q2loss,aloss,q1,q2] = simulacion.run_simulation()  # 执行一次仿真
         rewards.append(r) # 奖励值
         training_records.append(t) # 训练记录
         ti = simulacion.getTripinfo() # 获取仿真车辆的行程信息
@@ -178,6 +178,8 @@ try:
                 writer.add_scalar('NetworkLoss/Q1', q1loss, i)
                 writer.add_scalar('NetworkLoss/Q2', q2loss, i)
                 writer.add_scalar('NetworkLoss/A', aloss, i)
+                writer.add_scalar('Action Value/Q1', q1, i)
+                writer.add_scalar('Action Value/Q2', q2, i)
                 i += 1
                 # flow += 50
 

@@ -261,7 +261,7 @@ class SumoSimulation(object):
 
         finally: # 最终结束模拟
             self.close_simulation()
-            return [self.rewards, TrainingRecord(self.i_ep, self.running_reward, score), states, actions, collisions, self.im.agent.Q1loss, self.im.agent.Q2loss, self.im.agent.Aloss]
+            return [self.rewards, TrainingRecord(self.i_ep, self.running_reward, score), states, actions, collisions, self.im.agent.Q1loss, self.im.agent.Q2loss, self.im.agent.Aloss, self.im.agent.Q1, self.im.agent.Q2]
 
     def run_test_simulation(self, weight_path): # 测试模拟
         self.init_simulation()
@@ -272,6 +272,7 @@ class SumoSimulation(object):
 
         try:
             self.im.agent.load_weights(weight_path)
+            collisions = []
             while self._traci.simulation.getMinExpectedNumber() > 0:
                 if self._traci.simulation.getTime() % 30 == 0:
                     print(f'Simulation: {self.i_ep}; Time: {self._traci.simulation.getTime()}')
@@ -279,6 +280,7 @@ class SumoSimulation(object):
                 self.im.perform_actions()
                 self._traci.simulationStep()
                 self.im.update_state()
+                collisions.append(self.im.obtain_collisions())
 
                 if self._traci.simulation.getTime() > 50000:
                     self._traci.simulation.clearPending()
@@ -289,6 +291,7 @@ class SumoSimulation(object):
 
         finally:
             self.close_simulation()
+            return np.sum(collisions)
 
 
 
@@ -612,9 +615,6 @@ class SumoSimulation(object):
             #         fl['toJunction'] = d
             #         r.write(repr(fl))
 
-            duration = self.simulation_duration #5*60 模拟持续时间
-            # dens = [200,300,400,500,600,700,800]
-
             # ================================================================
             # probability:float([0,1]). Probability for emitting a vehicle each
             # second (not together with personsPerHour or period),
@@ -625,6 +625,8 @@ class SumoSimulation(object):
             # ================================================================
             # Si prob=1 entonces el flujo que se está simulando es 3600veh/h
 
+            duration = self.simulation_duration #5*60 模拟持续时间
+            # dens = [200,300,400,500,600,700,800]
             dens = self.flow  # veh/h/route 车流密度
 
             if dens > 3600: # 不得超过3600

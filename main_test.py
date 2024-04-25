@@ -60,7 +60,7 @@ from graphs import *  # noqa
 from scenarios import *  # noqa
 
 # % 设置种子可以确保每次运行代码时得到相同的随机数序列，从而使实验可重现
-SEED = 42
+SEED = 2024
 
 torch.manual_seed(SEED)
 np.random.seed(SEED)
@@ -75,9 +75,11 @@ nlanes = 2 # 车道数
 length = 200
 
 red_manhattan = ManhattanGraph(3, 3, 300)
-# escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
+# escenario = ScenarioTwo(red_manhattan,prob=100)
+# escenario = ScenarioThree(red_manhattan, 50, 1000, 1500, 3600)
 # escenario = ScenarioFour(red_manhattan)
-escenario = ScenarioTwo(red_manhattan,prob=100)
+escenario = ScenarioFive(red_manhattan)
+
 nlanes = 2
 simulacion = SumoSimulation(red_manhattan, gui=True, lanes=nlanes,
                             nrows=nrows, ncols=ncols, leng=length,
@@ -98,7 +100,7 @@ time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
 # simulacion.create_route_files_v2()
 
-flow = 200
+flow = 150
 
 simulacion.seed = SEED # 基于当前轮次的索引更新了随机种子，以改变随机性
 simulacion.change_algorithm(Fixed) # 设置控制算法
@@ -109,12 +111,12 @@ print(time.strftime("Elapsed time: %H:%M:%S", time.gmtime(elapsed_time)))
 simulacion.simulation_duration = 5*60
 simulacion.flow = flow
 
-simulacion.run_test_simulation(weight_path='ckpt/TD3')  # 执行一次仿真
+c = simulacion.run_test_simulation(weight_path='ckpt/TD3')  # 执行一次仿真
 
 ti = simulacion.getTripinfo() # 获取仿真车辆的行程信息
 
 if ti[0] > 0: # No ha habido error en tripInfo por el # de veh 检查车辆行程信息是否有效
-    print(f'Mean duration: {ti[5]:.2f}, Mean wtime: {ti[6]:.2f}, Mean timeloss: {ti[7]:.2f}, flow: {simulacion.flow}\n')
+    print(f'Mean duration: {ti[5]:.2f}, Mean wtime: {ti[6]:.2f}, Mean timeloss: {ti[7]:.2f}, flow: {simulacion.flow}, collisions: {c}\n')
 
 elapsed_time = time.time() - start_time
 print(time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))

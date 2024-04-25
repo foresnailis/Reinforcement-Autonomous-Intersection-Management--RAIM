@@ -63,6 +63,8 @@ class Agent():
         self.Q1loss = 0
         self.Q2loss = 0
         self.Aloss = 0
+        self.Q1=0
+        self.Q2=0
 
         # Actor Network (w/ Target Network)
         self.actor_local = Actor(state_size, action_size).to(device)
@@ -119,6 +121,8 @@ class Agent():
         self.Q1loss = 0
         self.Q2loss = 0
         self.Aloss = 0
+        self.Q1=0
+        self.Q2=0
         for i in range(1, LEARN_BATCH+1):
             # print(f'Learning: {i}/{LEARN_BATCH}')
             idxs, experiences, is_weights = self.memory.sample(BATCH_SIZE)
@@ -155,6 +159,7 @@ class Agent():
 
             # Compute critic1 loss
             Q_expected = self.critic1_local(states, actions)
+            self.Q1+=Q_expected.mean()
             errors1 = np.abs((Q_expected - Q_targets).detach().cpu().numpy())
             critic1_loss = self.mse(Q_expected, Q_targets, is_weights)
             self.Q1loss += critic1_loss.item()
@@ -169,6 +174,7 @@ class Agent():
 
             # Compute critic2 loss
             Q_expected = self.critic2_local(states, actions)
+            self.Q2+=Q_expected.mean()
             critic2_loss = self.mse(Q_expected, Q_targets, is_weights)
             self.Q2loss += critic2_loss.item()
             # Minimize the loss
@@ -195,9 +201,11 @@ class Agent():
                 self.soft_update(self.critic1_local, self.critic1_target, TAU)
                 self.soft_update(self.critic2_local, self.critic2_target, TAU)
                 self.soft_update(self.actor_local, self.actor_target, TAU)
-            self.Q1loss /= LEARN_BATCH
-            self.Q2loss /= LEARN_BATCH
-            self.Aloss /= (LEARN_BATCH / UPDATE_ACTOR_EVERY)
+        self.Q1loss /= LEARN_BATCH
+        self.Q2loss /= LEARN_BATCH
+        self.Aloss /= (LEARN_BATCH / UPDATE_ACTOR_EVERY)
+        self.Q1 /= LEARN_BATCH
+        self.Q2 /= LEARN_BATCH
            
 
 
@@ -214,7 +222,7 @@ class Agent():
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)
 
-    def save_weights(self, path='ckpt/TD3/'):
+    def save_weights(self, path='ckpt/'):
         actor_weights = os.path.join(path, actor_weights_file)
         critic1_weights = os.path.join(path, critic1_weights_file)
         critic2_weights = os.path.join(path, critic2_weights_file)

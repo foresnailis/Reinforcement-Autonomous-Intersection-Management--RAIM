@@ -645,7 +645,7 @@ class SumoSimulation(object):
                                 '" begin="' + str(0) +
                                 '" end="' + str(duration) +
                                 '" probability="' + str(prob) +
-                                '" type="car_diesel" departSpeed="max"' +
+                                '" type="car_gasoline" departSpeed="max"' +
                                 ' fromJunction="' + o +
                                 '" toJunction="' + d + '" />\n') # 写入路线信息
             r.write('</routes>') # 结束符号

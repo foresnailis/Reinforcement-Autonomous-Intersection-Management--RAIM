@@ -121,7 +121,7 @@ aux = []
 collisions = []
 # simulacion.create_route_files_v2()
 
-flow = 50
+flow = 150
 i = 0
 change_seed_every = 5
 best_timeloss = 9999 # 记录最佳时间损失

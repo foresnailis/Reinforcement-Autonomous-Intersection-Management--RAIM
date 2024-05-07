@@ -84,7 +84,7 @@ class Agent():
         self.noise = OUNoise(action_size)
 
         # Replay memory
-        self.memory = ER(BUFFER_SIZE)
+        self.memory = PER(BUFFER_SIZE)
 
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory."""

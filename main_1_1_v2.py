@@ -77,6 +77,7 @@ random.seed(SEED)
 # Writer will output to ./runs/ directory by default
 writer = SummaryWriter()
 
+model_name = "TD3"
 # Params
 nrows = 1
 # Number of columns:
@@ -127,7 +128,7 @@ change_seed_every = 5
 best_timeloss = 9999 # 记录最佳时间损失
 best_collisions = 9999 # 记录最佳碰撞次数
 
-simulacion.im.agent.load_weights('ckpt/TD3')
+simulacion.im.agent.load_weights('ckpt/' + model_name)
 try:
     for epoch in np.arange(epochs):
         simulacion.i_ep = epoch # 将当前轮次的索引传递给仿真环境
@@ -207,7 +208,7 @@ try:
                     best_timeloss = ti[7]
                     best_collisions = np.sum(c)
                     # simulacion.im.agent.save_checkpoint(str(flow) + '_best')
-                    save_dir = 'ckpt/TD3/' + str(flow) + '_best'
+                    save_dir = 'ckpt/'+ model_name + '/' + str(flow) + '_best'
                     os.makedirs(save_dir, exist_ok=True)
                     simulacion.im.agent.save_weights(save_dir)
 
@@ -224,4 +225,6 @@ except Exception as e:
 elapsed_time = time.time() - start_time
 print(time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
-simulacion.im.agent.save_weights('ckpt/TD3/')
+save_dir = 'ckpt/'+ model_name + '/' + str(flow) + '_simple'
+os.makedirs(save_dir, exist_ok=True)
+simulacion.im.agent.save_weights(save_dir)

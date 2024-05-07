@@ -30,7 +30,7 @@ else:
     sys.path.append("/usr/share/sumo/tools") # Para linux
     #sys.exit("please declare environment variable 'SUMO_HOME'")
 
-from sumolib import checkBinary  # noqa
+# from sumolib import checkBinary  # noqa
 import traci  # noqa
 
 # sys.path.append("/usr/share/sumo/bin") # Para linux
@@ -38,15 +38,15 @@ import traci  # noqa
 
 #%
 pltf = platform.system()
-if pltf == "Windows":
-    print("Your system is Windows")
-    netgenBinary = checkBinary('netgenerate.exe')
-    sumoBinary = checkBinary('sumo-gui.exe')
+# if pltf == "Windows":
+#     print("Your system is Windows")
+#     netgenBinary = checkBinary('netgenerate.exe')
+#     sumoBinary = checkBinary('sumo-gui.exe') 
 
-else:
-    print("Your system is Linux")
-    netgenBinary = checkBinary('netgenerate')
-    sumoBinary = checkBinary('sumo-gui')
+# else:
+#     print("Your system is Linux")
+#     netgenBinary = checkBinary('netgenerate')
+#     sumoBinary = checkBinary('sumo-gui')
 #%
 # 此处需修改为本地仓库的路径
 if pltf == "Windows":
@@ -113,7 +113,7 @@ Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
-epochs = 150 # 训练轮次
+epochs = 200 # 训练轮次
 rewards = [] # 训练奖励值
 training_records = [] # 训练统计数据
 training_tripinfo = [] # 训练过程车辆行程信息
@@ -127,6 +127,7 @@ change_seed_every = 5
 best_timeloss = 9999 # 记录最佳时间损失
 best_collisions = 9999 # 记录最佳碰撞次数
 
+simulacion.im.agent.load_weights('ckpt/TD3')
 try:
     for epoch in np.arange(epochs):
         simulacion.i_ep = epoch # 将当前轮次的索引传递给仿真环境
@@ -200,18 +201,21 @@ try:
                         best_collisions = 9999
                 '''
 
-                # Guardamos el mejor我们保留了最好的
+                # 保留最好
                 # 当前的碰撞次数和时间损失均优于历史最佳值
                 if best_collisions >= np.sum(c) and best_timeloss >= ti[7]:
                     best_timeloss = ti[7]
                     best_collisions = np.sum(c)
                     # simulacion.im.agent.save_checkpoint(str(flow) + '_best')
-                    simulacion.im.agent.save('ckpt/TD3/' + str(flow) + '_best')
+                    save_dir = 'ckpt/TD3/' + str(flow) + '_best'
+                    os.makedirs(save_dir, exist_ok=True)
+                    simulacion.im.agent.save_weights(save_dir)
 
                 print(f'Simulation: {epoch}; Mean duration: {ti[5]:.2f}, Mean wtime: {ti[6]:.2f}, Mean timeloss: {ti[7]:.2f}, flow: {simulacion.flow}, reward: {t[1]}, score: {t[2]}\n')
                 # print(f'Training records: {t}')
             except Exception as e:
                 print("type error: " + str(e))
+    simulacion.im.agent.memory.save_experience()
 except Exception as e:
     print("type error: " + str(e))
     print(traceback.format_exc())

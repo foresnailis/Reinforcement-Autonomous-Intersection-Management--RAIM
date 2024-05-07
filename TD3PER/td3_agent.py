@@ -41,7 +41,7 @@ actor_weights_file = 'weights_actor.pt'
 critic1_weights_file = 'weights_critic1.pt'
 critic2_weights_file = 'weights_critic2.pt'
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0")
 # device = torch.device('cpu')
 print('Device on TD3-PER:', device)
 
@@ -123,6 +123,7 @@ class Agent():
         self.Aloss = 0
         self.Q1=0
         self.Q2=0
+
         for i in range(1, LEARN_BATCH+1):
             # print(f'Learning: {i}/{LEARN_BATCH}')
             idxs, experiences, is_weights = self.memory.sample(BATCH_SIZE)
@@ -231,6 +232,7 @@ class Agent():
         torch.save(self.critic2_local.state_dict(), critic2_weights)
 
     def load_weights(self, path):
+        self.memory.load_experience()
         actor_weights = os.path.join(path, actor_weights_file)
         critic1_weights = os.path.join(path, critic1_weights_file)
         critic2_weights = os.path.join(path, critic2_weights_file)

@@ -78,7 +78,7 @@ class IntersectionManager:
         self._running_reward = -1000 # 运行奖励
 
         torch.manual_seed(self._SEED)
-        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # 设备
+        self._device = torch.device("cuda:0") # 设备
 
         # PPO Agent
         # self.agent = Agent(self._device)
@@ -142,7 +142,7 @@ class IntersectionManager:
         state_size = self.observation_space # 状态空间大小
         action_size = action_space # 动作空间大小
         self.agent = Agent(state_size, action_size) # 代理
-        self.LEARN_EVERY = 60 # 学习频率
+        self.LEARN_EVERY = 10 # 学习频率
         self.epoch = 0 # 轮次
 
         # self._score = 0

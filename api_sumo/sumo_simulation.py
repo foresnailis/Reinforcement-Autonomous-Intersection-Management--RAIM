@@ -257,7 +257,7 @@ class SumoSimulation(object):
 
         except Exception as e:
             print("type error: " + str(e))
-            print(traceback.format_exc())
+            print("run_simulation问题："+ traceback.format_exc())
 
         finally: # 最终结束模拟
             self.close_simulation()
@@ -287,7 +287,7 @@ class SumoSimulation(object):
 
         except Exception as e:
             print("type error: " + str(e))
-            print(traceback.format_exc())
+            print("run_test_simulation问题:" + traceback.format_exc())
 
         finally:
             self.close_simulation()
@@ -341,7 +341,7 @@ class SumoSimulation(object):
             return timeLoss
         except Exception as e:
             print("type error: " + str(e))
-            print(traceback.format_exc())
+            print("obtain_time_loss的错误："+traceback.format_exc())
 
     def _remove_moving_away(self, j, v):
         return {key:val for key, val in v.items() if (val[tc.VAR_ROAD_ID][-2:] == j) or (val[tc.VAR_ROAD_ID][:1+len(j)] == f':{j}')} # If vehicles are approaching the intersection
@@ -390,7 +390,7 @@ class SumoSimulation(object):
 
         except Exception as e:
             print("type error: " + str(e))
-            print(traceback.format_exc())
+            print("getTripinfo的错误："+ traceback.format_exc())
 
         finally:
             return [total_trips, total_timeloss, total_duration, total_wtime,

@@ -1,4 +1,6 @@
 import numpy as np
+import os
+import pickle
 
 def is_power_of_2 (n):
     return ((n & (n - 1)) == 0) and n != 0
@@ -134,11 +136,13 @@ class PER():  # stored as ( s, a, r, s_new, done ) in SumTree
     beta_increment_per_sampling = 1e-4  # annealing the bias, often 1e-3
     absolute_error_upper = 1.   # clipped abs error
 
-    def __init__(self, capacity):
+    def __init__(self, capacity, memory_dir='~/RAIM/memory/', memory_file='experience.pkl'):
         """
         The tree is composed of a sum tree that contains the priority scores at his leaf and also a data array.
         """
         self.tree = SumTree(capacity)
+        self.memory_dir = memory_dir
+        self.memory_file = memory_file
 
     def __len__(self):
         return len(self.tree)
@@ -208,6 +212,18 @@ class PER():  # stored as ( s, a, r, s_new, done ) in SumTree
 
         for idx, p in zip(idxs, ps):
             self.tree.update(idx, p)
+    
+    def save_experience(self):
+        os.makedirs(self.memory_dir, exist_ok=True)
+        with open(self.memory_file, 'ab') as f:
+            pickle.dump(list(self.tree.data), f)
+
+    def load_experience(self):
+        if os.path.exists(self.memory_file):
+            with open(self.memory_file, 'rb') as f:
+                data = pickle.load(f)
+                for d in data:
+                    self.add(d)
 
 
 
@@ -236,8 +252,10 @@ class NormalTree():
         pass
 
 class ER():
-    def __init__(self, capacity):
+    def __init__(self, capacity, memory_dir='~/RAIM/memory/', memory_file='experience.pkl'):
         self.tree = NormalTree(capacity)
+        self.memory_dir = os.path.expanduser(memory_dir)
+        self.memory_file = os.path.join(self.memory_dir, memory_file)
 
     def __len__(self):
         return len(self.tree)
@@ -256,3 +274,15 @@ class ER():
 
     def batch_update(self, idxs, errors):
         pass
+
+    def save_experience(self):
+        os.makedirs(self.memory_dir, exist_ok=True)
+        with open(self.memory_file, 'wb') as f:
+            pickle.dump(list(self.tree.data), f)
+
+    def load_experience(self):
+        if os.path.exists(self.memory_file):
+            with open(self.memory_file, 'rb') as f:
+                data = pickle.load(f)
+                for d in data:
+                    self.add(d)

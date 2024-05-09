@@ -30,7 +30,7 @@ else:
     sys.path.append("/usr/share/sumo/tools") # Para linux
     #sys.exit("please declare environment variable 'SUMO_HOME'")
 
-# from sumolib import checkBinary  # noqa
+from sumolib import checkBinary  # noqa
 import traci  # noqa
 
 # sys.path.append("/usr/share/sumo/bin") # Para linux
@@ -38,21 +38,18 @@ import traci  # noqa
 
 #%
 pltf = platform.system()
-# if pltf == "Windows":
-#     print("Your system is Windows")
-#     netgenBinary = checkBinary('netgenerate.exe')
-#     sumoBinary = checkBinary('sumo-gui.exe') 
-
-# else:
-#     print("Your system is Linux")
-#     netgenBinary = checkBinary('netgenerate')
-#     sumoBinary = checkBinary('sumo-gui')
-#%
-# 此处需修改为本地仓库的路径
 if pltf == "Windows":
-    root = 'D:/TongjiCourse/Multi-Agent/Reinforcement-Autonomous-Intersection-Management--RAIM'
+    print("Your system is Windows")
+    netgenBinary = checkBinary('netgenerate.exe')
+    sumoBinary = checkBinary('sumo-gui.exe')
+
 else:
-    root = '/root/RAIM'
+    print("Your system is Linux")
+    netgenBinary = checkBinary('netgenerate')
+    sumoBinary = checkBinary('sumo-gui')
+
+with open('proj-root.txt', 'r') as file:
+    root = file.read().strip()
 
 os.chdir(root)
 

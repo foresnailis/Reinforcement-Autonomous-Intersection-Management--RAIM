@@ -61,3 +61,5 @@ profiler.dat
 # Ignore run folder
 /results/tripinfo_.xml
 /sumodata/
+
+proj-root.txt

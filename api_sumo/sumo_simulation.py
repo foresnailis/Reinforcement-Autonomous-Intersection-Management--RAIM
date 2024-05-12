@@ -250,7 +250,7 @@ class SumoSimulation(object):
         try:
             if self.i_ep % 20 == 0: # 每隔20步，保存权重
                 # self.im.agent.save_checkpoint(str(self.flow))
-                self.im.agent.save_weights()
+                self.im.agent.save_weights("/ckpt/TD3-PER")
 
             # with open('log/ppo_training_records.pkl', 'wb') as f:
                     # pickle.dump(self.training_records, f)

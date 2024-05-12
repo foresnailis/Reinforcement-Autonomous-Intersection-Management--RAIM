@@ -52,7 +52,7 @@ pltf = platform.system()
 if pltf == "Windows":
     root = 'D:/TongjiCourse/Multi-Agent/Reinforcement-Autonomous-Intersection-Management--RAIM'
 else:
-    root = '/root/RAIM'
+    root = '/home/fishspring/RAIM'
 
 os.chdir(root)
 
@@ -77,7 +77,7 @@ random.seed(SEED)
 # Writer will output to ./runs/ directory by default
 writer = SummaryWriter()
 
-model_name = "TD3"
+model_name = "TD3-PER"
 # Params
 nrows = 1
 # Number of columns:
@@ -114,7 +114,7 @@ Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
-epochs = 200 # 训练轮次
+epochs = 3000 # 训练轮次
 rewards = [] # 训练奖励值
 training_records = [] # 训练统计数据
 training_tripinfo = [] # 训练过程车辆行程信息
@@ -128,7 +128,7 @@ change_seed_every = 5
 best_timeloss = 9999 # 记录最佳时间损失
 best_collisions = 9999 # 记录最佳碰撞次数
 
-simulacion.im.agent.load_weights('ckpt/' + model_name)
+# simulacion.im.agent.load_weights('ckpt/' + model_name)
 try:
     for epoch in np.arange(epochs):
         simulacion.i_ep = epoch # 将当前轮次的索引传递给仿真环境

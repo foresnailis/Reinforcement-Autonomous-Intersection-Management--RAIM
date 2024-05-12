@@ -5,7 +5,7 @@ import os
 from collections import namedtuple, deque
 
 from TD3PER.model import Actor, Critic
-from TD3PER.PER import PER, ER
+from TD3PER.PER import PER
 
 import torch
 import torch.nn.functional as F

@@ -61,3 +61,6 @@ profiler.dat
 # Ignore run folder
 /results/
 /sumodata/
+
+nohup.out
+experience.pkl

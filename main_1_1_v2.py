@@ -52,7 +52,7 @@ pltf = platform.system()
 if pltf == "Windows":
     root = 'D:/TongjiCourse/Multi-Agent/Reinforcement-Autonomous-Intersection-Management--RAIM'
 else:
-    root = '/root/RAIM'
+    root = '/home/fishspring/RAIM'
 
 os.chdir(root)
 
@@ -114,7 +114,7 @@ Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
-epochs = 200 # 训练轮次
+epochs = 3000 # 训练轮次
 rewards = [] # 训练奖励值
 training_records = [] # 训练统计数据
 training_tripinfo = [] # 训练过程车辆行程信息
@@ -128,7 +128,7 @@ change_seed_every = 5
 best_timeloss = 9999 # 记录最佳时间损失
 best_collisions = 9999 # 记录最佳碰撞次数
 
-simulacion.im.agent.load_weights('ckpt/' + model_name)
+# simulacion.im.agent.load_weights('ckpt/' + model_name)
 try:
     for epoch in np.arange(epochs):
         simulacion.i_ep = epoch # 将当前轮次的索引传递给仿真环境
@@ -191,6 +191,7 @@ try:
                 # 当历史记录数据量超过250时，表示已经收集了一定数量的数据，可以进行后续的判断。
                 # 如果方差小于0.005倍的流量，则认为环境变化不大，可以增加流量。
                 # 如果历史记录数据量超过1000条，即已经收集了一定量的数据，也可以增加流量。
+                '''
                 if len(a) > 250:
                     # if np.mean(a[:,7][-1000:]) < 0.5:
                     if np.var(a[:,7][-250:]) < 0.005*flow or len(a) > 1000:
@@ -200,7 +201,6 @@ try:
                         training_tripinfo = []
                         best_timeloss = 9999
                         best_collisions = 9999
-                '''
 
                 # 保留最好
                 # 当前的碰撞次数和时间损失均优于历史最佳值

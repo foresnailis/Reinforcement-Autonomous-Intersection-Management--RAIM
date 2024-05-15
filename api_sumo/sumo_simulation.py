@@ -104,7 +104,8 @@ class SumoSimulation(object):
                  seed=0,
                  i_ep=0,
                  flow=100,
-                 simulation_duration=5*60):
+                 simulation_duration=5*60,
+                 weight_path='/ckpt/'):
         self.sg = sg
         self.ss = ss
         self.sa = sa
@@ -151,6 +152,7 @@ class SumoSimulation(object):
 
         self.tripinfo_file = 'results/tripinfo_'
         self.simulation_duration = simulation_duration
+        self.weight_path=weight_path
 
     @property
     def traci(self):
@@ -253,7 +255,7 @@ class SumoSimulation(object):
         try:
             if self.i_ep % 20 == 0: # 每隔20步，保存权重
                 # self.im.agent.save_checkpoint(str(self.flow))
-                self.im.agent.save_weights()
+                self.im.agent.save_weights(self.weight_path)
 
             # with open('log/ppo_training_records.pkl', 'wb') as f:
                     # pickle.dump(self.training_records, f)

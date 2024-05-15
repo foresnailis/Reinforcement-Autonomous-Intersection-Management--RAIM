@@ -75,6 +75,7 @@ random.seed(SEED)
 writer = SummaryWriter()
 
 model_name = "TD3"
+model_weight_path=os.path.join('/ckpt', model_name)
 # Params
 nrows = 1
 # Number of columns:
@@ -92,7 +93,7 @@ escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
 nlanes = 2
 simulacion = SumoSimulation(red_manhattan, gui=False, lanes=nlanes,
                             nrows=nrows, ncols=ncols, leng=length,
-                            seed=SEED, flow=25)
+                            seed=SEED, flow=25, weight_path=model_weight_path)
 
 # Algoritmo para controlar los semáforos. Deprecated in v3
 # 控制交通灯的算法。V3中折旧
@@ -125,7 +126,7 @@ change_seed_every = 5
 best_timeloss = 9999 # 记录最佳时间损失
 best_collisions = 9999 # 记录最佳碰撞次数
 
-simulacion.im.agent.load_weights('ckpt/' + model_name)
+# simulacion.im.agent.load_weights(model_weight_path)
 try:
     for epoch in np.arange(epochs):
         simulacion.i_ep = epoch # 将当前轮次的索引传递给仿真环境
@@ -205,7 +206,7 @@ try:
                     best_timeloss = ti[7]
                     best_collisions = np.sum(c)
                     # simulacion.im.agent.save_checkpoint(str(flow) + '_best')
-                    save_dir = 'ckpt/'+ model_name + '/' + str(flow) + '_best'
+                    save_dir = os.path.join(model_weight_path, str(flow) + '_best')
                     os.makedirs(save_dir, exist_ok=True)
                     simulacion.im.agent.save_weights(save_dir)
 
@@ -222,6 +223,6 @@ except Exception as e:
 elapsed_time = time.time() - start_time
 print(time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
-save_dir = 'ckpt/'+ model_name + '/' + str(flow) + '_simple'
+save_dir = os.path.join(model_weight_path, str(flow) + '_simple')
 os.makedirs(save_dir, exist_ok=True)
 simulacion.im.agent.save_weights(save_dir)

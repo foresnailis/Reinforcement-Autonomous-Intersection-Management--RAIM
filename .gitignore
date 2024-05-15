@@ -62,5 +62,5 @@ profiler.dat
 /results/
 /sumodata/
 
-nohup.out
+*.out
 experience.pkl

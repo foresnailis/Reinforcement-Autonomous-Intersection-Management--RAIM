@@ -12,6 +12,7 @@ import torch
 import math
 import random
 import threading
+import logging
 
 import numpy as np
 import traci.constants as tc
@@ -142,7 +143,7 @@ class IntersectionManager:
         state_size = self.observation_space # 状态空间大小
         action_size = action_space # 动作空间大小
         self.agent = Agent(state_size, action_size) # 代理
-        self.LEARN_EVERY = 10 # 学习频率
+        self.LEARN_EVERY = 60 # 学习频率
         self.epoch = 0 # 轮次
 
         # self._score = 0
@@ -440,7 +441,7 @@ class IntersectionManager:
             self._exit = True 
 
             for veh in collision_veh: # 每次碰撞，奖励列表添加一项-10，更新碰撞车辆的末尾符号位为1，表明发生了碰撞
-                self.rewards[veh] += -10
+                self.rewards[veh] += -20
                 # traci.vehicle.setSpeed(veh, 0.01) # 将车辆速度降低，以增加平均等待时间并干扰系统
                 # self.new_state[veh][-1] = 1
                 try:
@@ -497,6 +498,10 @@ class IntersectionManager:
                     奖励函数公式
                     '''
                     rew = w1*delay + w2*wt + w3*acc_wt  # 根据以上数据计算该步奖励
+                    # print_log = open("printlog.txt",'a')
+                    # print(f"{k}: {speed}, {v}",file = print_log)
+                    # print_log.close()
+
                     if k in self.rewards: # 在第k个量中增加该步奖励
                         self.rewards[k] += rew #-stepLength #-(rew * low_speed * speed_dev * factor) #-stepLength * low_speed * speed_dev * factor #-stepLength self.rewards[k]*1
                     else:

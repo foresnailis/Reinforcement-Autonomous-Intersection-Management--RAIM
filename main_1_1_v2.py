@@ -74,7 +74,7 @@ random.seed(SEED)
 # Writer will output to ./runs/ directory by default
 writer = SummaryWriter()
 
-model_name = "TD3"
+model_name = "TD3-LSTM"
 # Params
 nrows = 1
 # Number of columns:
@@ -111,7 +111,7 @@ Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
-epochs = 200 # 训练轮次
+epochs = 100 # 训练轮次
 rewards = [] # 训练奖励值
 training_records = [] # 训练统计数据
 training_tripinfo = [] # 训练过程车辆行程信息
@@ -125,7 +125,7 @@ change_seed_every = 5
 best_timeloss = 9999 # 记录最佳时间损失
 best_collisions = 9999 # 记录最佳碰撞次数
 
-simulacion.im.agent.load_weights('ckpt/' + model_name)
+# simulacion.im.agent.load_weights('ckpt/' + model_name)
 try:
     for epoch in np.arange(epochs):
         simulacion.i_ep = epoch # 将当前轮次的索引传递给仿真环境
@@ -182,7 +182,6 @@ try:
                 i += 1
                 # flow += 50
 
-                '''
                 # 根据历史车辆行程信息的变化情况来动态调整交通流量参数，以优化模型的训练和性能。
                 # 这一行代码检查了历史记录数据量是否大于250。这里的 a 是一个二维数组，存储了历史车辆行程信息。
                 # 当历史记录数据量超过250时，表示已经收集了一定数量的数据，可以进行后续的判断。
@@ -197,7 +196,6 @@ try:
                         training_tripinfo = []
                         best_timeloss = 9999
                         best_collisions = 9999
-                '''
 
                 # 保留最好
                 # 当前的碰撞次数和时间损失均优于历史最佳值

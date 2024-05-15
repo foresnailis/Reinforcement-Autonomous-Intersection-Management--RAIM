@@ -84,7 +84,7 @@ class Agent():
         self.noise = OUNoise(action_size)
 
         # Replay memory
-        self.memory = ER(BUFFER_SIZE)
+        self.memory = PER(BUFFER_SIZE)
 
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory."""
@@ -136,7 +136,7 @@ class Agent():
 
             is_weights = torch.from_numpy(is_weights).float().to(device)
 
-            ''' 噪声添加
+            # 噪声添加
             # ---------------------------- update critic ---------------------------- #
             # Target Policy Smoothing Regularization: add a small amount of clipped random noises to the selected action
             if POLICY_NOISE > 0.0:
@@ -147,7 +147,6 @@ class Agent():
             else:
                 # Get predicted next-state actions and Q values from target models
                 actions_next = self.actor_target(next_states)
-            '''
             actions_next = self.actor_target(next_states)
 
             # Error Mitigation

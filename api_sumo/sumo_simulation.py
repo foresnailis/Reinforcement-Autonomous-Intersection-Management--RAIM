@@ -104,7 +104,8 @@ class SumoSimulation(object):
                  seed=0,
                  i_ep=0,
                  flow=100,
-                 simulation_duration=5*60):
+                 simulation_duration=5*60,
+                 weight_path='/ckpt/'):
         self.sg = sg
         self.ss = ss
         self.sa = sa
@@ -151,6 +152,7 @@ class SumoSimulation(object):
 
         self.tripinfo_file = 'results/tripinfo_'
         self.simulation_duration = simulation_duration
+        self.weight_path=weight_path
 
     @property
     def traci(self):
@@ -224,6 +226,9 @@ class SumoSimulation(object):
 
             # Perform actions based on state
             self.im.perform_actions() # 执行动作
+
+            # 这里是报车流碰撞Warning的地方
+            # Warning: Vehicle 'right0_left0.25'; junction collision with vehicle 'left0_top0.5', lane=':A0_12_1', gap=-1.00, time=192.75 stage=move.
             self._traci.simulationStep() # 模拟时间步前行
 
             states.append(self.im.update_state()) # 更新下一步状态
@@ -250,7 +255,7 @@ class SumoSimulation(object):
         try:
             if self.i_ep % 20 == 0: # 每隔20步，保存权重
                 # self.im.agent.save_checkpoint(str(self.flow))
-                self.im.agent.save_weights("/ckpt/TD3-PER")
+                self.im.agent.save_weights(self.weight_path)
 
             # with open('log/ppo_training_records.pkl', 'wb') as f:
                     # pickle.dump(self.training_records, f)

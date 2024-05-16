@@ -5,7 +5,7 @@ import os
 from collections import namedtuple, deque
 
 from TD3PER.model import Actor, Critic
-from TD3PER.PER import PER, ER
+from TD3PER.PER import PER
 
 import torch
 import torch.nn.functional as F
@@ -84,7 +84,7 @@ class Agent():
         self.noise = OUNoise(action_size)
 
         # Replay memory
-        self.memory = ER(BUFFER_SIZE)
+        self.memory = PER(BUFFER_SIZE)
 
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory."""

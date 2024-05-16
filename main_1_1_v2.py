@@ -30,7 +30,7 @@ else:
     sys.path.append("/usr/share/sumo/tools") # Para linux
     #sys.exit("please declare environment variable 'SUMO_HOME'")
 
-# from sumolib import checkBinary  # noqa
+from sumolib import checkBinary  # noqa
 import traci  # noqa
 
 # sys.path.append("/usr/share/sumo/bin") # Para linux
@@ -38,21 +38,18 @@ import traci  # noqa
 
 #%
 pltf = platform.system()
-# if pltf == "Windows":
-#     print("Your system is Windows")
-#     netgenBinary = checkBinary('netgenerate.exe')
-#     sumoBinary = checkBinary('sumo-gui.exe') 
-
-# else:
-#     print("Your system is Linux")
-#     netgenBinary = checkBinary('netgenerate')
-#     sumoBinary = checkBinary('sumo-gui')
-#%
-# 此处需修改为本地仓库的路径
 if pltf == "Windows":
-    root = 'D:/TongjiCourse/Multi-Agent/Reinforcement-Autonomous-Intersection-Management--RAIM'
+    print("Your system is Windows")
+    netgenBinary = checkBinary('netgenerate.exe')
+    sumoBinary = checkBinary('sumo-gui.exe')
+
 else:
-    root = '/home/fishspring/RAIM'
+    print("Your system is Linux")
+    netgenBinary = checkBinary('netgenerate')
+    sumoBinary = checkBinary('sumo-gui')
+
+with open('proj-root.txt', 'r') as file:
+    root = file.read().strip()
 
 os.chdir(root)
 
@@ -77,7 +74,9 @@ random.seed(SEED)
 # Writer will output to ./runs/ directory by default
 writer = SummaryWriter()
 
-model_name = "TD3"
+model_name = "TD3-PER"
+model_weight_path=os.path.join('/ckpt', model_name)
+
 # Params
 nrows = 1
 # Number of columns:
@@ -95,7 +94,7 @@ escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
 nlanes = 2
 simulacion = SumoSimulation(red_manhattan, gui=False, lanes=nlanes,
                             nrows=nrows, ncols=ncols, leng=length,
-                            seed=SEED, flow=25)
+                            seed=SEED, flow=25, weight_path=model_weight_path)
 
 # Algoritmo para controlar los semáforos. Deprecated in v3
 # 控制交通灯的算法。V3中折旧
@@ -128,7 +127,7 @@ change_seed_every = 5
 best_timeloss = 9999 # 记录最佳时间损失
 best_collisions = 9999 # 记录最佳碰撞次数
 
-# simulacion.im.agent.load_weights('ckpt/' + model_name)
+# simulacion.im.agent.load_weights(model_weight_path)
 try:
     for epoch in np.arange(epochs):
         simulacion.i_ep = epoch # 将当前轮次的索引传递给仿真环境
@@ -185,7 +184,7 @@ try:
                 i += 1
                 # flow += 50
 
-                '''
+                # 课程学习
                 # 根据历史车辆行程信息的变化情况来动态调整交通流量参数，以优化模型的训练和性能。
                 # 这一行代码检查了历史记录数据量是否大于250。这里的 a 是一个二维数组，存储了历史车辆行程信息。
                 # 当历史记录数据量超过250时，表示已经收集了一定数量的数据，可以进行后续的判断。
@@ -197,7 +196,7 @@ try:
                     if np.var(a[:,7][-250:]) < 0.005*flow or len(a) > 1000:
                         flow += 25
                         simulacion.flow = flow
-                        print(f'Increasing flow to: {flow} due to, the var is: {np.var(a[:,7][-100:])}')
+                        print(f'提升flow至: {flow}；此时方差为: {np.var(a[:,7][-100:])}')
                         training_tripinfo = []
                         best_timeloss = 9999
                         best_collisions = 9999
@@ -208,7 +207,7 @@ try:
                     best_timeloss = ti[7]
                     best_collisions = np.sum(c)
                     # simulacion.im.agent.save_checkpoint(str(flow) + '_best')
-                    save_dir = 'ckpt/'+ model_name + '/' + str(flow) + '_best'
+                    save_dir = os.path.join(model_weight_path, str(flow) + '_best')
                     os.makedirs(save_dir, exist_ok=True)
                     simulacion.im.agent.save_weights(save_dir)
 
@@ -225,6 +224,6 @@ except Exception as e:
 elapsed_time = time.time() - start_time
 print(time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
-save_dir = 'ckpt/'+ model_name + '/' + str(flow) + '_simple'
+save_dir = os.path.join(model_weight_path, str(flow) + '_simple')
 os.makedirs(save_dir, exist_ok=True)
 simulacion.im.agent.save_weights(save_dir)

@@ -5,7 +5,7 @@ import os
 from collections import namedtuple, deque
 
 from TD3PER.model import Actor, Critic
-from TD3PER.PER import PER, ER
+from TD3PER.PER import PER
 
 import torch
 import torch.nn.functional as F
@@ -84,7 +84,7 @@ class Agent():
         self.noise = OUNoise(action_size)
 
         # Replay memory
-        self.memory = ER(BUFFER_SIZE)
+        self.memory = PER(BUFFER_SIZE)
 
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory."""
@@ -223,7 +223,7 @@ class Agent():
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)
 
-    def save_weights(self, path='ckpt/'):
+    def save_weights(self, path):
         actor_weights = os.path.join(path, actor_weights_file)
         critic1_weights = os.path.join(path, critic1_weights_file)
         critic2_weights = os.path.join(path, critic2_weights_file)

@@ -59,8 +59,9 @@ profiler/
 profiler.dat
 
 # Ignore run folder
-/results/
+/results/tripinfo_.xml
 /sumodata/
 
-*.out
+proj-root.txt
 experience.pkl
+*.out

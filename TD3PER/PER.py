@@ -136,13 +136,13 @@ class PER():  # stored as ( s, a, r, s_new, done ) in SumTree
     beta_increment_per_sampling = 1e-4  # annealing the bias, often 1e-3
     absolute_error_upper = 1.   # clipped abs error
 
-    def __init__(self, capacity, memory_dir='~/RAIM/memory/', memory_file='experience.pkl'):
+    def __init__(self, capacity, memory_dir='memory', memory_file='experience.pkl'):
         """
         The tree is composed of a sum tree that contains the priority scores at his leaf and also a data array.
         """
         self.tree = SumTree(capacity)
         self.memory_dir = memory_dir
-        self.memory_file = memory_file
+        self.memory_file = os.path.join(memory_dir, memory_file)
 
     def __len__(self):
         return len(self.tree)
@@ -215,10 +215,12 @@ class PER():  # stored as ( s, a, r, s_new, done ) in SumTree
     
     def save_experience(self):
         os.makedirs(self.memory_dir, exist_ok=True)
+        print(f"Save experience file: {self.memory_file}\n")
         with open(self.memory_file, 'ab') as f:
             pickle.dump(list(self.tree.data), f)
 
     def load_experience(self):
+        print(f"Load experience file: {self.memory_file}\n")
         if os.path.exists(self.memory_file):
             with open(self.memory_file, 'rb') as f:
                 data = pickle.load(f)

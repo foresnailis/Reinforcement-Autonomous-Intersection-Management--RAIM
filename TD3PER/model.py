@@ -17,6 +17,22 @@ def hidden_init(layer):
     lim = 1. / np.sqrt(fan_in)
     return (-lim, lim)
 
+class SelfAttention(nn.Module):
+    def __init__(self, embed_dim):
+        super(SelfAttention, self).__init__()
+        self.query = nn.Linear(embed_dim, embed_dim)
+        self.key = nn.Linear(embed_dim, embed_dim)
+        self.value = nn.Linear(embed_dim, embed_dim)
+
+    def forward(self, x):
+        q = self.query(x)
+        k = self.key(x)
+        v = self.value(x)
+        attn_weights = torch.matmul(q, k.transpose(0, 1))
+        attn_weights = nn.functional.softmax(attn_weights, dim=-1)
+        attended_values = torch.matmul(attn_weights, v)
+        return attended_values
+
 class Actor(nn.Module):
     """Actor (Policy) Model."""
 
@@ -28,6 +44,7 @@ class Actor(nn.Module):
             action_size (int): Dimension of each action
         """
         super(Actor, self).__init__()
+        self.attention = SelfAttention(state_size)
         #self.bn1 = nn.BatchNorm1d(state_size)
         self.fc1 = nn.Linear(state_size, fc1_units)
         # self.bn2 = nn.BatchNorm1d(fc1_units)
@@ -50,7 +67,7 @@ class Actor(nn.Module):
 
     def forward(self, x):
         """Build an actor (policy) network that maps states -> actions."""
-        #x = self.bn1(x)
+        x = self.attention(x)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
@@ -69,6 +86,7 @@ class Critic(nn.Module):
             action_size (int): Dimension of each action
         """
         super(Critic, self).__init__()
+        self.attention = SelfAttention(state_size)
         #self.bn1 = nn.BatchNorm1d(state_size)
         self.fc1 = nn.Linear(state_size, fc1_units)
         # self.bn2 = nn.BatchNorm1d(fc1_units)
@@ -92,6 +110,7 @@ class Critic(nn.Module):
     def forward(self, x, action):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
         #x = self.bn1(x)
+        x = self.attention(x)
         x = F.relu(self.fc1(x))
         x = torch.cat((x, action), dim=1)
         x = F.relu(self.fc2(x))

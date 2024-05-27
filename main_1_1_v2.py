@@ -74,8 +74,8 @@ random.seed(SEED)
 # Writer will output to ./runs/ directory by default
 writer = SummaryWriter()
 
-model_name = "TD3-PER"
-model_weight_path=os.path.join('/ckpt', model_name)
+model_name = "TD3-PER-Attention"
+model_weight_path=os.path.join('ckpt', model_name)
 
 # Params
 nrows = 1
@@ -113,7 +113,7 @@ Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
 
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
-epochs = 3000 # 训练轮次
+epochs = 200 # 训练轮次
 rewards = [] # 训练奖励值
 training_records = [] # 训练统计数据
 training_tripinfo = [] # 训练过程车辆行程信息
@@ -121,7 +121,7 @@ aux = []
 collisions = []
 # simulacion.create_route_files_v2()
 
-flow = 25
+flow = 150
 i = 0
 change_seed_every = 5
 best_timeloss = 9999 # 记录最佳时间损失

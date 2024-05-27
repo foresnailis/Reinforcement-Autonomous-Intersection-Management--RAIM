@@ -12,6 +12,7 @@ import torch
 import math
 import random
 import threading
+import logging
 
 import numpy as np
 import traci.constants as tc
@@ -142,7 +143,7 @@ class IntersectionManager:
         state_size = self.observation_space # 状态空间大小
         action_size = action_space # 动作空间大小
         self.agent = Agent(state_size, action_size) # 代理
-        self.LEARN_EVERY = 10 # 学习频率
+        self.LEARN_EVERY = 60 # 学习频率
         self.epoch = 0 # 轮次
 
         # self._score = 0
@@ -154,6 +155,16 @@ class IntersectionManager:
         self.vehicles_first_time_outside = set() # 首次离开的车辆列表重置
         self._exit = False # 退出标志位
         self.already_update = False # 更新标志位
+
+        self._traci.junction.subscribeContext(self._id,
+                                                  tc.CMD_GET_VEHICLE_VARIABLE,
+                                                  self._max_dist_detect,
+                                                  [tc.VAR_ROAD_ID]) # 向路由订阅一定范围内的车辆信息，注册了一个回调函数，在车辆数目变化时返回状态更新
+
+        vehicles = traci.junction.getContextSubscriptionResults(self._id)
+        for veh in vehicles:
+            self._traci.vehicle.setLaneChangeMode(veh,0b000000000000)
+            self._traci.vehicle.setSpeedMode(veh,00000)
 
     '''
     初始化状态函数first_state()和更新状态函数update_state()中都有obtain_state()
@@ -418,6 +429,8 @@ class IntersectionManager:
             for k, v in self.actions.items():
                 try:
                     # traci.vehicle.setSpeedMode(k, 31)
+                    # if v.item()!=1:
+                    #     print(v.item())
                     v = (v + 1)/2*13.39 + 0.5 # ？？什么玩意调整 13.39
                     traci.vehicle.slowDown(k, v, traci.simulation.getDeltaT()) # 选择sumo路由中的对应车辆，将其加/减速到对应值
                 except Exception as e:
@@ -440,7 +453,7 @@ class IntersectionManager:
             self._exit = True 
 
             for veh in collision_veh: # 每次碰撞，奖励列表添加一项-10，更新碰撞车辆的末尾符号位为1，表明发生了碰撞
-                self.rewards[veh] += -10
+                self.rewards[veh] += -20
                 # traci.vehicle.setSpeed(veh, 0.01) # 将车辆速度降低，以增加平均等待时间并干扰系统
                 # self.new_state[veh][-1] = 1
                 try:
@@ -497,6 +510,10 @@ class IntersectionManager:
                     奖励函数公式
                     '''
                     rew = w1*delay + w2*wt + w3*acc_wt  # 根据以上数据计算该步奖励
+                    # print_log = open("printlog.txt",'a')
+                    # print(f"{k}: {speed}, {v}",file = print_log)
+                    # print_log.close()
+
                     if k in self.rewards: # 在第k个量中增加该步奖励
                         self.rewards[k] += rew #-stepLength #-(rew * low_speed * speed_dev * factor) #-stepLength * low_speed * speed_dev * factor #-stepLength self.rewards[k]*1
                     else:

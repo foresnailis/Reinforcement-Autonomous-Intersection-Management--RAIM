@@ -24,54 +24,6 @@ __author__ = "Bryan Alexis Freire Viteri. Mod by Antonio Guillen Perez"
 __version__ = "3.0"
 __email__ = "bryanfv95@gmail.com antonio.guillen@edu.upct.es"
 
-'''
-**成员函数**：
-
-1. `__init__`：
-   - 输入：各种模拟参数
-   - 输出：无
-   - 功能：初始化模拟器，设置参数。
-
-2. `change_graph`、`change_scenario`、`change_algorithm`：
-   - 输入：图形、场景、算法对象
-   - 输出：无
-   - 功能：改变当前模拟的图形、场景和算法。
-
-3. `run_simulation`：
-   - 输入：无
-   - 输出：模拟结果、训练记录、状态、动作、碰撞信息
-   - 功能：运行模拟，执行交通流和奖励的计算，并返回结果。
-
-4. `run_test_simulation`：
-   - 输入：无
-   - 输出：无
-   - 功能：运行测试模拟。
-
-5. `obtain_loss_time`：
-   - 输入：无
-   - 输出：损失时间
-   - 功能：获取损失时间的计算。
-
-6. `getTripinfo`：
-   - 输入：无
-   - 输出：模拟统计信息
-   - 功能：获取模拟的一些统计信息，如旅行次数、总耗时等。
-
-7. `reset_statistics`：
-   - 输入：无
-   - 输出：无
-   - 功能：重置模拟的统计信息。
-
-8. `init_simulation`：
-   - 输入：无
-   - 输出：无
-   - 功能：初始化模拟。
-
-9. `close_simulation`：
-   - 输入：无
-   - 输出：无
-   - 功能：关闭模拟。
-'''
 
 class SumoSimulation(object):
     '''

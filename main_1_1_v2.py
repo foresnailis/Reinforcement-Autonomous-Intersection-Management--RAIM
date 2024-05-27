@@ -74,7 +74,7 @@ random.seed(SEED)
 # Writer will output to ./runs/ directory by default
 writer = SummaryWriter()
 
-model_name = "TD3-PER"
+model_name = "DDPG-cl"
 model_weight_path=os.path.join('/ckpt', model_name)
 
 # Params

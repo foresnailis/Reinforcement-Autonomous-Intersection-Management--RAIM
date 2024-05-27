@@ -21,7 +21,7 @@ from collections import defaultdict, namedtuple
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import concurrent.futures
 
-from TD3PER.td3_agent import Agent
+from TD3PER.ddpg_agent import Agent
 
 
 class IntersectionManager:

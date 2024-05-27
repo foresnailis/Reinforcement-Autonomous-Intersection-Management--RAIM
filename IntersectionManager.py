@@ -156,16 +156,6 @@ class IntersectionManager:
         self._exit = False # 退出标志位
         self.already_update = False # 更新标志位
 
-        self._traci.junction.subscribeContext(self._id,
-                                                  tc.CMD_GET_VEHICLE_VARIABLE,
-                                                  self._max_dist_detect,
-                                                  [tc.VAR_ROAD_ID]) # 向路由订阅一定范围内的车辆信息，注册了一个回调函数，在车辆数目变化时返回状态更新
-
-        vehicles = traci.junction.getContextSubscriptionResults(self._id)
-        for veh in vehicles:
-            self._traci.vehicle.setLaneChangeMode(veh,0b000000000000)
-            self._traci.vehicle.setSpeedMode(veh,00000)
-
     '''
     初始化状态函数first_state()和更新状态函数update_state()中都有obtain_state()
     此函数会返回一个list,表示当前所有还未通行车辆的所有信息
@@ -642,6 +632,9 @@ class IntersectionManager:
             # 返回的vehicles是包含车辆信息的字典，键是车辆的标识符，值是包含车辆信息的字典
 
             if vehicles: # 如果有车，调用rma
+                for veh in vehicles:
+                    self._traci.vehicle.setLaneChangeMode(veh,0b000000000000)
+                    self._traci.vehicle.setSpeedMode(veh,00000)
                 # print(f'\n Found {len(vehicles)} vehicles before filtering')
                 # print(f'\t Keys: {vehicles.keys()}')
                 return self._remove_moving_away(self._id, vehicles) # If vehicles are approaching the intersection 

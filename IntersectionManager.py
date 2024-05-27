@@ -429,6 +429,8 @@ class IntersectionManager:
             for k, v in self.actions.items():
                 try:
                     # traci.vehicle.setSpeedMode(k, 31)
+                    # if v.item()!=1:
+                    #     print(v.item())
                     v = (v + 1)/2*13.39 + 0.5 # ？？什么玩意调整 13.39
                     traci.vehicle.slowDown(k, v, traci.simulation.getDeltaT()) # 选择sumo路由中的对应车辆，将其加/减速到对应值
                 except Exception as e:

@@ -81,7 +81,7 @@ red_manhattan = ManhattanGraph(3, 3, 300)
 escenario = ScenarioFive(red_manhattan)
 
 nlanes = 2
-simulacion = SumoSimulation(red_manhattan, gui=True, lanes=nlanes,
+simulacion = SumoSimulation(red_manhattan, gui=False, lanes=nlanes,
                             nrows=nrows, ncols=ncols, leng=length,
                             seed=SEED, flow=250)
 
@@ -111,7 +111,7 @@ print(time.strftime("Elapsed time: %H:%M:%S", time.gmtime(elapsed_time)))
 simulacion.simulation_duration = 5*60
 simulacion.flow = flow
 
-c = simulacion.run_test_simulation(weight_path='ckpt/TD3/150_best')  # 执行一次仿真
+c = simulacion.run_test_simulation(weight_path='ckpt/TD3-PER/150_best')  # 执行一次仿真
 
 ti = simulacion.getTripinfo() # 获取仿真车辆的行程信息
 

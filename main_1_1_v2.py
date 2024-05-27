@@ -199,7 +199,7 @@ try:
                         training_tripinfo = []
                         best_timeloss = 9999
                         best_collisions = 9999
-
+                '''
                 # 保留最好
                 # 当前的碰撞次数和时间损失均优于历史最佳值
                 if best_collisions >= np.sum(c) and best_timeloss >= ti[7]:

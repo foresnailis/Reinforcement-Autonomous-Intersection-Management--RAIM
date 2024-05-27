@@ -136,7 +136,7 @@ class Agent():
 
             is_weights = torch.from_numpy(is_weights).float().to(device)
 
-            ''' 噪声添加
+            # 噪声添加
             # ---------------------------- update critic ---------------------------- #
             # Target Policy Smoothing Regularization: add a small amount of clipped random noises to the selected action
             if POLICY_NOISE > 0.0:
@@ -147,7 +147,7 @@ class Agent():
             else:
                 # Get predicted next-state actions and Q values from target models
                 actions_next = self.actor_target(next_states)
-            '''
+            
             actions_next = self.actor_target(next_states)
 
             # Error Mitigation
@@ -224,6 +224,8 @@ class Agent():
             target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)
 
     def save_weights(self, path):
+        if not os.path.exists(path):
+            os.makedirs(path)
         actor_weights = os.path.join(path, actor_weights_file)
         critic1_weights = os.path.join(path, critic1_weights_file)
         critic2_weights = os.path.join(path, critic2_weights_file)

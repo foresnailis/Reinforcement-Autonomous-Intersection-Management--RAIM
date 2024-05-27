@@ -155,6 +155,16 @@ class IntersectionManager:
         self.vehicles_first_time_outside = set() # 首次离开的车辆列表重置
         self._exit = False # 退出标志位
         self.already_update = False # 更新标志位
+        
+        self._traci.junction.subscribeContext(self._id,
+                                                  tc.CMD_GET_VEHICLE_VARIABLE,
+                                                  self._max_dist_detect,
+                                                  [tc.VAR_ROAD_ID]) # 向路由订阅一定范围内的车辆信息，注册了一个回调函数，在车辆数目变化时返回状态更新
+
+        vehicles = traci.junction.getContextSubscriptionResults(self._id)
+        for veh in vehicles:
+            self._traci.vehicle.setLaneChangeMode(veh,0b000000000000)
+            self._traci.vehicle.setSpeedMode(veh,00000)
 
         self._traci.junction.subscribeContext(self._id,
                                                   tc.CMD_GET_VEHICLE_VARIABLE,

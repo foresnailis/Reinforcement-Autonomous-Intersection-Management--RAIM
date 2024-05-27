@@ -232,7 +232,6 @@ class Agent():
         torch.save(self.critic2_local.state_dict(), critic2_weights)
 
     def load_weights(self, path):
-        # self.memory.load_experience()
         actor_weights = os.path.join(path, actor_weights_file)
         critic1_weights = os.path.join(path, critic1_weights_file)
         critic2_weights = os.path.join(path, critic2_weights_file)

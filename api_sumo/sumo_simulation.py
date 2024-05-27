@@ -270,22 +270,29 @@ class SumoSimulation(object):
 
     def run_test_simulation(self, weight_path): # 测试模拟
         self.init_simulation()
+        self.reset_statistics()
         self._traci.simulationStep()
-        self.im.update_state()
-        self.im.control_tls()
-        self.im.score = 0  
+        states = []
+        actions = []
+        collisions = []
+
+        states.append(self.im.first_state()) # 状态更新，拿到当前交叉口车辆所有状态
+        self.im.control_tls()  # 更改信号灯
+        self.im.reset_values()  # 重置值
+        self.im.score = 0 # 初始化分数
 
         try:
             self.im.agent.load_weights(weight_path)
-            collisions = []
             while self._traci.simulation.getMinExpectedNumber() > 0:
                 if self._traci.simulation.getTime() % 30 == 0:
                     print(f'Simulation: {self.i_ep}; Time: {self._traci.simulation.getTime()}')
-                self.im.select_actions()
+                actions.append(self.im.select_actions())
                 self.im.perform_actions()
                 self._traci.simulationStep()
                 self.im.update_state()
                 collisions.append(self.im.obtain_collisions())
+                self.im.obtain_reward()
+                self.im.swap_states()
 
                 if self._traci.simulation.getTime() > 50000:
                     self._traci.simulation.clearPending()

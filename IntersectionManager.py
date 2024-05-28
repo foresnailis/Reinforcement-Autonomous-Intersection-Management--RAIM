@@ -421,8 +421,6 @@ class IntersectionManager:
         if self.actions:
             for k, v in self.actions.items():
                 try:
-                    traci.vehicle.setSpeedMode(k,0)
-                    # traci.vehicle.setSpeedMode(k, 31)
                     if v.item()!=1:
                         print(v.item())
                     v = (v + 1)/2*13.39 + 0.5 # ？？什么玩意调整 13.39
@@ -639,8 +637,8 @@ class IntersectionManager:
 
             if vehicles: # 如果有车，调用rma
                 for veh in vehicles:
-                    self._traci.vehicle.setLaneChangeMode(veh,0b000000000000)
-                    self._traci.vehicle.setSpeedMode(veh,00000)
+                    traci.vehicle.setLaneChangeMode(veh,0b000000000000)
+                    traci.vehicle.setSpeedMode(veh,000000)
                 # print(f'\n Found {len(vehicles)} vehicles before filtering')
                 # print(f'\t Keys: {vehicles.keys()}')
                 return self._remove_moving_away(self._id, vehicles) # If vehicles are approaching the intersection 

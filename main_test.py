@@ -109,12 +109,11 @@ print(time.strftime("Elapsed time: %H:%M:%S", time.gmtime(elapsed_time)))
 simulacion.simulation_duration = 5*60
 simulacion.flow = flow
 
-c = simulacion.run_test_simulation(weight_path='ckpt/TD3-PER-nonSUMO/225_best')  # 执行一次仿真
+c = simulacion.run_test_simulation(weight_path='ckpt')  # 执行一次仿真
 
 ti = simulacion.getTripinfo() # 获取仿真车辆的行程信息
 
 if ti[0] > 0: # No ha habido error en tripInfo por el # de veh 检查车辆行程信息是否有效
     print(f'Mean duration: {ti[5]:.2f}, Mean wtime: {ti[6]:.2f}, Mean timeloss: {ti[7]:.2f}, flow: {simulacion.flow}, collisions: {c}\n')
-
 elapsed_time = time.time() - start_time
 print(time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))

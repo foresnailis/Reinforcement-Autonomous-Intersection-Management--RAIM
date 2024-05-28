@@ -57,7 +57,7 @@ class SumoSimulation(object):
                  i_ep=0,
                  flow=100,
                  simulation_duration=5*60,
-                 weight_path='/ckpt/',
+                 weight_path='ckpt',
                  policy_noise=True,
                  cf = False,
                  model_name='Test',
@@ -100,6 +100,10 @@ class SumoSimulation(object):
         self.seed = seed
         self.flow = flow
 
+        self.policy_noise = policy_noise
+        self.cf = cf
+        self.model_name = model_name
+
         self.im = IntersectionManager('A0', 'pppqw', seed = self.seed, policy_noise=policy_noise, cf=cf, model_name=model_name, agent=agent) #'pppqw'好像没用
         self.running_reward = -1000
         self.rewards = []
@@ -117,6 +121,9 @@ class SumoSimulation(object):
     @property
     def time(self):
         return self._time
+    
+    def change_agent(self, agent):
+        self.im = IntersectionManager('A0', 'pppqw', seed = self.seed, policy_noise=self.policy_noise, cf=self.cf, model_name=self.model_name, agent=agent)
 
     def change_graph(self,sg): # Graph更新与相关结构更新
         self.sg = sg
@@ -224,7 +231,7 @@ class SumoSimulation(object):
             self.close_simulation()
             return [self.rewards, TrainingRecord(self.i_ep, self.running_reward, score), states, actions, collisions, self.im.agent.Q1loss, self.im.agent.Q2loss, self.im.agent.Aloss, self.im.agent.Q1, self.im.agent.Q2]
 
-    def run_test_simulation(self, weight_path): # 测试模拟
+    def run_test_simulation(self, weight_path='ckpt', is_agent=True): # 测试模拟
         self.init_simulation()
         self.reset_statistics()
         self._traci.simulationStep()
@@ -248,7 +255,8 @@ class SumoSimulation(object):
                 self.im.update_state()
                 collisions.append(self.im.obtain_collisions())
                 self.im.obtain_reward()
-                self.im.swap_states()
+                if is_agent:
+                    self.im.swap_states()
 
                 if self._traci.simulation.getTime() > 50000:
                     self._traci.simulation.clearPending()

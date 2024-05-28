@@ -62,58 +62,112 @@ SEED = 2024
 torch.manual_seed(SEED)
 np.random.seed(SEED)
 random.seed(SEED)
-# Params
-nrows = 1
-# Number of columns:
-ncols = 1
-# Number of lanes:
-nlanes = 2 # 车道数
-# Lenght (m):
-length = 200
+
+import argparse
+
+parser = argparse.ArgumentParser(description="Traffic Simulation Parameters")
+parser.add_argument('--nrows', type=int, default=1, help='Number of rows in the grid')
+parser.add_argument('--ncols', type=int, default=1, help='Number of columns in the grid')
+parser.add_argument('--nlanes', type=int, default=2, help='Number of lanes per road')
+parser.add_argument('--length', type=int, default=200, help='Length of each road segment (in meters)')
+parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility')
+parser.add_argument('--agent', type=str, default='TD3', help='TD3 or DDPG')
+parser.add_argument('--policy_noise', type=bool, default=True, help='POLICY NOISE')
+parser.add_argument('--class_learn', type=bool, default=True, help='Class Learning')
+parser.add_argument('--cf', type=bool, default=False, help='Car Following and lane change.')
+parser.add_argument('--gui', type=bool, default=False, help='Whether to use SUMO GUI')
+parser.add_argument('--flow', type=int, default=150, help='Vehicle flow rate (vehicles per hour)')
+parser.add_argument('--model_name', type=str, default="Test", help='Name of the model to use')
+parser.add_argument('--epochs', type=int, default=200, help='Number of training epochs')
+args = parser.parse_args()
+
+if args.gui:
+    sumoBinary = checkBinary('sumo-gui')
+else:
+    sumoBinary = checkBinary('sumo')
 
 red_manhattan = ManhattanGraph(3, 3, 300)
-# escenario = ScenarioTwo(red_manhattan,prob=100)
-# escenario = ScenarioThree(red_manhattan, 50, 1000, 1500, 3600)
-# escenario = ScenarioFour(red_manhattan)
-escenario = ScenarioFive(red_manhattan)
+escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
+Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=args.nlanes)
 
-nlanes = 2
-simulacion = SumoSimulation(red_manhattan, gui=False, lanes=nlanes,
-                            nrows=nrows, ncols=ncols, leng=length,
-                            seed=SEED, flow=250,agent='TD3')
+simulation = SumoSimulation(red_manhattan, gui=args.gui, lanes=args.nlanes,
+                            nrows=args.nrows, ncols=args.ncols, leng=args.length,
+                            seed=args.seed, flow=args.flow,
+                            policy_noise=args.policy_noise, cf= args.cf, model_name=args.model_name, agent=args.agent)
+simulation.seed = SEED
+simulation.change_algorithm(Fixed) # 设置控制算法
+simulation.change_scenario(escenario) # 设置交通场景
 
-# Algoritmo para controlar los semáforos. Deprecated in v3
-# 控制交通灯的算法。V3中折旧
-Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
+model_list = [
+    'DDPG-CL',
+    'TD3-CL',
+    'TD3-CL-15',
+    'TD3',
+    'TD3-PER',
+    'Krauss'
+]
 
-# simulacion.im.agent.load_param()
-# simulacion.im.agent.load_checkpoint(checkpoint_path='ckpt/ep_collisions_70.pth.tar')
-# simulacion.im.agent.load_checkpoint(step=15)
-# simulacion.im.agent.load_imitationLearning(path='ckpt/m_4096_2048_1024_0.0209.pkl')
-# simulacion.im.agent.load('ckpt/TD3/150')
-# simulacion.im.agent.load('ckpt/TD3/300_best')
+flow_list = [100, 125, 150, 175, 200, 250, 300, 350, 400]
 
-time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
-start_time = time.time()
-# simulacion.create_route_files_v2()
+import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
 
-flow = 150
+# 准备数据存储结构
+results = []
 
-simulacion.seed = SEED # 基于当前轮次的索引更新了随机种子，以改变随机性
-simulacion.change_algorithm(Fixed) # 设置控制算法
-simulacion.change_scenario(escenario) # 设置交通场景
+for model_name in model_list:
+    for flow in flow_list:
+        simulation.flow = flow
+        if model_name == 'Krauss':
+            c = simulation.run_test_simulation(is_agent=False)
+            ti = simulation.getTripinfo()
+        else:
+            weight_path = os.path.join('ckpt', model_name, '150_simple')
+            if 'DDPG' in model_name:
+                simulation.change_agent('DDPG')
+            elif 'TD3' in model_name:
+                simulation.change_agent('TD3')
+            
+            c = simulation.run_test_simulation(weight_path=weight_path, is_agent=True)
+            ti = simulation.getTripinfo()
+        
+        # 存储结果
+        results.append({
+            'Model': model_name,
+            'Flow': flow,
+            'Mean Duration': ti[5],
+            'Mean Wait Time': ti[6],
+            'Mean Time Loss': ti[7],
+            'Collisions': c
+        })
 
-elapsed_time = time.time() - start_time
-print(time.strftime("Elapsed time: %H:%M:%S", time.gmtime(elapsed_time)))
-simulacion.simulation_duration = 5*60
-simulacion.flow = flow
+# 转换为DataFrame
+df = pd.DataFrame(results)
 
-c = simulacion.run_test_simulation(weight_path='ckpt/TD3-CL/150_best')  # 执行一次仿真
+# 绘图
+plt.figure(figsize=(12, 8))
+sns.set(style="whitegrid")
 
-ti = simulacion.getTripinfo() # 获取仿真车辆的行程信息
+# Mean Duration
+plt.subplot(2, 3, 1)
+sns.lineplot(x='Flow', y='Mean Duration', hue='Model', data=df)
+plt.title('Mean Duration by Model and Flow')
 
-if ti[0] > 0: # No ha habido error en tripInfo por el # de veh 检查车辆行程信息是否有效
-    print(f'Mean duration: {ti[5]:.2f}, Mean wtime: {ti[6]:.2f}, Mean timeloss: {ti[7]:.2f}, flow: {simulacion.flow}, collisions: {c}\n')
+# Mean Wait Time
+plt.subplot(2, 3, 2)
+sns.lineplot(x='Flow', y='Mean Wait Time', hue='Model', data=df)
+plt.title('Mean Wait Time by Model and Flow')
 
-elapsed_time = time.time() - start_time
-print(time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+# Mean Time Loss
+plt.subplot(2, 3, 3)
+sns.lineplot(x='Flow', y='Mean Time Loss', hue='Model', data=df)
+plt.title('Mean Time Loss by Model and Flow')
+
+# Collisions
+plt.subplot(2, 3, 4)
+sns.lineplot(x='Flow', y='Collisions', hue='Model', data=df)
+plt.title('Collisions by Model and Flow')
+
+plt.tight_layout()
+plt.show()

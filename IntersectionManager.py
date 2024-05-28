@@ -79,7 +79,7 @@ class IntersectionManager:
         self._running_reward = -1000 # 运行奖励
 
         torch.manual_seed(self._SEED)
-        self._device = torch.device("cuda:0") # 设备
+        self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # 设备
 
         # PPO Agent
         # self.agent = Agent(self._device)
@@ -220,6 +220,9 @@ class IntersectionManager:
                 state = self.set_other_vehicles(state, rw_data, k) # 设置其他车辆状态
                 state = self.zero_padding(state, k) # 零填充
 
+            for s in state.values():
+                if len(s) == 0:
+                    print('hhh')
             return state
         else: # 若不存在
             state = defaultdict(partial(np.ndarray, 0))
@@ -418,9 +421,10 @@ class IntersectionManager:
         if self.actions:
             for k, v in self.actions.items():
                 try:
+                    traci.vehicle.setSpeedMode(k,0)
                     # traci.vehicle.setSpeedMode(k, 31)
-                    # if v.item()!=1:
-                    #     print(v.item())
+                    if v.item()!=1:
+                        print(v.item())
                     v = (v + 1)/2*13.39 + 0.5 # ？？什么玩意调整 13.39
                     traci.vehicle.slowDown(k, v, traci.simulation.getDeltaT()) # 选择sumo路由中的对应车辆，将其加/减速到对应值
                 except Exception as e:
@@ -447,7 +451,9 @@ class IntersectionManager:
                 # traci.vehicle.setSpeed(veh, 0.01) # 将车辆速度降低，以增加平均等待时间并干扰系统
                 # self.new_state[veh][-1] = 1
                 try:
-                    self.new_state[veh][-1] = 1 # 这里没看懂为什么要改？state最后一个参数是什么？
+                    # 权宜之策
+                    if len(self.new_state[veh]) != 0:
+                        self.new_state[veh][-1] = 1 # 这里没看懂为什么要改？state最后一个参数是什么？
                     self._exit = True
 
                 except Exception as e:

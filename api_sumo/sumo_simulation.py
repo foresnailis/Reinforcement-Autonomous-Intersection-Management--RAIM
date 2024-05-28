@@ -39,7 +39,6 @@ class SumoSimulation(object):
     _traci：与SUMO交互的 traci 对象。
     '''
     def __init__(self,
-                 model_name,
                  sg=None,
                  ss=None,
                  sa=None,
@@ -60,7 +59,9 @@ class SumoSimulation(object):
                  simulation_duration=5*60,
                  weight_path='/ckpt/',
                  policy_noise=True,
-                 cf = False):
+                 cf = False,
+                 model_name='Test',
+                 agent='TD3'):
         self.sg = sg
         self.ss = ss
         self.sa = sa
@@ -99,7 +100,7 @@ class SumoSimulation(object):
         self.seed = seed
         self.flow = flow
 
-        self.im = IntersectionManager('A0', 'pppqw', seed = self.seed, policy_noise=policy_noise, cf=cf, model_name=model_name) #'pppqw'好像没用
+        self.im = IntersectionManager('A0', 'pppqw', seed = self.seed, policy_noise=policy_noise, cf=cf, model_name=model_name, agent=agent) #'pppqw'好像没用
         self.running_reward = -1000
         self.rewards = []
         self.training_records = []

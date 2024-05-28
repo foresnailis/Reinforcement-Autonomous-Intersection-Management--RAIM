@@ -81,6 +81,7 @@ parser.add_argument('--ncols', type=int, default=1, help='Number of columns in t
 parser.add_argument('--nlanes', type=int, default=2, help='Number of lanes per road')
 parser.add_argument('--length', type=int, default=200, help='Length of each road segment (in meters)')
 parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility')
+parser.add_argument('--agent', type=str, default='TD3', help='TD3 or DDPG')
 parser.add_argument('--policy_noise', type=bool, default=True, help='POLICY NOISE')
 parser.add_argument('--class_learn', type=bool, default=True, help='Class Learning')
 parser.add_argument('--cf', type=bool, default=False, help='Car Following and lane change.')
@@ -105,7 +106,7 @@ model_weight_path=os.path.join('ckpt', args.model_name)
 simulacion = SumoSimulation(red_manhattan, gui=args.gui, lanes=args.nlanes,
                             nrows=args.nrows, ncols=args.ncols, leng=args.length,
                             seed=args.seed, flow=args.flow, weight_path=model_weight_path, 
-                            policy_noise=args.policy_noise, cf= args.cf, model_name=args.model_name)
+                            policy_noise=args.policy_noise, cf= args.cf, model_name=args.model_name, agent=args.agent)
 
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()

@@ -62,5 +62,5 @@ profiler.dat
 /results/tripinfo_.xml
 
 proj-root.txt
-experience.pkl
+*.pkl
 *.out

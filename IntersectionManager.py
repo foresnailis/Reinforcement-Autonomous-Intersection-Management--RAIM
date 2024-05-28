@@ -22,15 +22,15 @@ from collections import defaultdict, namedtuple
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import concurrent.futures
 
-from TD3PER.ddpg_agent import Agent
-
+from TD3PER.ddpg_agent import DDPGAgent
+from TD3PER.td3_agent import Agent
 
 class IntersectionManager:
     """Intersection Manager for each intersection that regulates
     the vehicles in each intersection.
     """
 
-    def __init__(self, inter_id, inductionloops, seed, model_name, train=False, policy_noise=True, cf=False):
+    def __init__(self, inter_id, inductionloops, seed, model_name, train=False, policy_noise=True, cf=False, agent='TD3'):
         self._id = inter_id # 交叉路口id
         self._traci = traci # sumo路由
 
@@ -100,49 +100,9 @@ class IntersectionManager:
         self.already_update = False # 是否更新
         self.cycle = 60 # 交通灯周期长度
 
-# =============================================================================
-#         # DDPG
-# =============================================================================
-        # self.agent = DDPG(gamma,
-        #               tau,
-        #               hidden_size,
-        #               observation_space,
-        #               action_space,
-        #               checkpoint_dir=checkpoint_dir
-        #               )
-
-        # # Initialize replay memory
-        # replay_size = 4096*16
-        # self.memory_crash = ReplayMemory(int(replay_size))
-        # self.memory_normal = ReplayMemory(int(replay_size))
-        # self.action_noise = 0.5
-        # Initialize OU-Noise
-        # nb_actions = 1
-        # noise_stddev = 5
-        # self.ou_noise = OrnsteinUhlenbeckActionNoise(mu=np.zeros(nb_actions),
-        #                                         sigma=float(noise_stddev) * np.ones(nb_actions))
-
-# =============================================================================
-#         # TD3
-# =============================================================================
-        # state_dim = observation_space
-        # action_dim = action_space
-        # max_action = 1
-        # min_action = -1
-        # discount = 0.99
-        # tau = 0.005
-
-        # self.agent = TD3.TD3(state_dim, action_dim, max_action, min_action)
-        # self.replay_buffer = utils_TD3.ReplayBuffer(state_dim, action_dim)
-
-        # self._exit = False
-
-# =============================================================================
-#         # TD3-PER
-# =============================================================================
         state_size = self.observation_space # 状态空间大小
         action_size = action_space # 动作空间大小
-        self.agent = Agent(state_size, action_size, model_name, policy_noise) # 代理
+        self.agent = Agent(state_size, action_size, model_name, policy_noise) if agent=='TD3' else DDPGAgent(state_size, action_size, model_name)
         self.LEARN_EVERY = 60 # 学习频率
         self.epoch = 0 # 轮次
 
@@ -422,7 +382,7 @@ class IntersectionManager:
                 try:
                     if v.item()!=1:
                         print(v.item())
-                    v = (v + 1)/2*13.39 + 0.5 # ？？什么玩意调整 13.39
+                    v = (v + 1)/2*30 + 0.5 # ？？什么玩意调整 13.39
                     traci.vehicle.slowDown(k, v, traci.simulation.getDeltaT()) # 选择sumo路由中的对应车辆，将其加/减速到对应值
                 except Exception as e:
                     print(f"Error while perform action")

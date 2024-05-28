@@ -24,12 +24,14 @@ WEIGHT_DECAY = 0
 LEARN_BATCH = 1
 
 class DDPGAgent:
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, model_name):
         self.state_size = state_size
         self.action_size = action_size
-        self.Qloss = 0
-        self.Ploss = 0
-        self.Q = 0
+        self.Q1loss = 0
+        self.Q2loss = 0
+        self.Aloss = 0
+        self.Q1=0
+        self.Q2=0
 
         self.actor_local = Actor(state_size, action_size).to(device)
         self.actor_target = Actor(state_size, action_size).to(device)
@@ -39,7 +41,7 @@ class DDPGAgent:
         self.critic_target = Critic(state_size, action_size).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
 
-        self.memory = PER(BUFFER_SIZE)
+        self.memory = PER(BUFFER_SIZE, memory_file = model_name + '_experience.pkl')
 
     def step(self, state, action, reward, next_state, done):
         self.memory.add((state, action, reward, next_state, done))
@@ -75,7 +77,7 @@ class DDPGAgent:
 
             actions_pred = self.actor_local(states)
             actor_loss = -self.critic_local(states, actions_pred).mean()
-            self.Ploss += actor_loss.item()
+            self.Aloss += actor_loss.item()
 
             self.actor_optimizer.zero_grad()
             actor_loss.backward()
@@ -85,7 +87,7 @@ class DDPGAgent:
             self.soft_update(self.actor_local, self.actor_target, TAU)
 
         self.Qloss /= LEARN_BATCH
-        self.Ploss /= LEARN_BATCH
+        self.Aloss /= LEARN_BATCH
 
     def soft_update(self, local_model, target_model, tau):
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):

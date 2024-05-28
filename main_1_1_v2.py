@@ -59,14 +59,13 @@ sys.path.append(f"{root}/api_sumo/sumo_elems")
 sys.path.append(f"{root}/graphs")
 sys.path.append(f"{root}/scenarios")
 
-from algorithms import *  # noqa
-from api_sumo import *  # noqa
-from graphs import *  # noqa
-from scenarios import *  # noqa
+from algorithms import *
+from api_sumo import *
+from graphs import *
+from scenarios import *
 
 # % 设置种子可以确保每次运行代码时得到相同的随机数序列，从而使实验可重现
 SEED = 42
-
 torch.manual_seed(SEED)
 np.random.seed(SEED)
 random.seed(SEED)
@@ -74,62 +73,53 @@ random.seed(SEED)
 # Writer will output to ./runs/ directory by default
 writer = SummaryWriter()
 
-model_name = "TD3-PER-nonSUMO"
-model_weight_path=os.path.join('ckpt', model_name)
+import argparse
 
-# Params
-nrows = 1
-# Number of columns:
-ncols = 1
-# Number of lanes:
-nlanes = 2 # 车道数
-# Lenght (m):
-length = 200
+parser = argparse.ArgumentParser(description="Traffic Simulation Parameters")
+parser.add_argument('--nrows', type=int, default=1, help='Number of rows in the grid')
+parser.add_argument('--ncols', type=int, default=1, help='Number of columns in the grid')
+parser.add_argument('--nlanes', type=int, default=2, help='Number of lanes per road')
+parser.add_argument('--length', type=int, default=200, help='Length of each road segment (in meters)')
+parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility')
+parser.add_argument('--policy_noise', type=bool, default=True, help='POLICY NOISE')
+parser.add_argument('--class_learn', type=bool, default=True, help='Class Learning')
+parser.add_argument('--cf', type=bool, default=False, help='Car Following and lane change.')
+parser.add_argument('--gui', type=bool, default=False, help='Whether to use SUMO GUI')
+parser.add_argument('--flow', type=int, default=150, help='Vehicle flow rate (vehicles per hour)')
+parser.add_argument('--model_name', type=str, default="Test", help='Name of the model to use')
+parser.add_argument('--epochs', type=int, default=200, help='Number of training epochs')
+args = parser.parse_args()
 
-# Estas líneas son *heredadas* y van a estar deprecated en la versión v3
+if args.gui:
+    sumoBinary = checkBinary('sumo-gui')
+else:
+    sumoBinary = checkBinary('sumo')
+
 red_manhattan = ManhattanGraph(3, 3, 300)
 escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
+Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=args.nlanes)
 
-# Crea la simulación
-nlanes = 2
-simulacion = SumoSimulation(red_manhattan, gui=False, lanes=nlanes,
-                            nrows=nrows, ncols=ncols, leng=length,
-                            seed=SEED, flow=25, weight_path=model_weight_path)
 
-# Algoritmo para controlar los semáforos. Deprecated in v3
-# 控制交通灯的算法。V3中折旧
-Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=nlanes)
+model_weight_path=os.path.join('ckpt', args.model_name)
 
-#%
-# simulacion.im.agent.load_param()
-# simulacion.im.agent.load_checkpoint(checkpoint_path='ckpt/ep_collisions_70.pth.tar')
-# simulacion.im.agent.load_checkpoint(step=15)
-# simulacion.im.agent.load_imitationLearning(path='ckpt/m_4096_2048_1024_0.0209.pkl')
-# simulacion.im.agent.load('ckpt/TD3/150')
-# simulacion.im.agent.load('ckpt/TD3/300_best')
-
-# weight_path = 'ckpt'
-# simulacion.im.agent.load_weights(weight_path)
+simulacion = SumoSimulation(red_manhattan, gui=args.gui, lanes=args.nlanes,
+                            nrows=args.nrows, ncols=args.ncols, leng=args.length,
+                            seed=args.seed, flow=args.flow, weight_path=model_weight_path, 
+                            policy_noise=args.policy_noise, cf= args.cf, model_name=args.model_name)
 
 time_now = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
 start_time = time.time()
-epochs = 1000 # 训练轮次
-rewards = [] # 训练奖励值
-training_records = [] # 训练统计数据
-training_tripinfo = [] # 训练过程车辆行程信息
-aux = []
-collisions = []
-# simulacion.create_route_files_v2()
 
-flow = 150
+training_tripinfo = [] # 训练过程车辆行程信息
 i = 0
 change_seed_every = 5
 best_timeloss = 9999 # 记录最佳时间损失
 best_collisions = 9999 # 记录最佳碰撞次数
 
-# simulacion.im.agent.load_weights(model_weight_path)
+flow = args.flow
+
 try:
-    for epoch in np.arange(epochs):
+    for epoch in np.arange(args.epochs):
         simulacion.i_ep = epoch # 将当前轮次的索引传递给仿真环境
         simulacion.seed = int(epoch/change_seed_every) # 基于当前轮次的索引更新了随机种子，以改变随机性
         simulacion.change_algorithm(Fixed) # 设置控制算法
@@ -149,18 +139,12 @@ try:
             simulacion.flow = np.random.randint(25, 600)
 
         [r,t,s,a,c,q1loss,q2loss,aloss,q1,q2] = simulacion.run_simulation()  # 执行一次仿真
-        rewards.append(r) # 奖励值
-        training_records.append(t) # 训练记录
         ti = simulacion.getTripinfo() # 获取仿真车辆的行程信息
-        collisions.append(np.sum(c)) # 碰撞次数
 
         if ti[0] > 0: # No ha habido error en tripInfo por el # de veh 检查车辆行程信息是否有效
             try:
                 training_tripinfo.append(ti) 
-                aux.append(ti)
                 a = np.reshape(training_tripinfo, (-1, 9))
-
-                b = np.reshape(aux, (-1, 9))
                 # 下面将训练的指标写入
                 writer.add_scalar('Global/Density', flow, i)
                 writer.add_scalar('Global/# of Vehicles', ti[0], i)
@@ -182,7 +166,6 @@ try:
                 writer.add_scalar('Action Value/Q1', q1, i)
                 writer.add_scalar('Action Value/Q2', q2, i)
                 i += 1
-                # flow += 50
 
                 # 课程学习
                 # 根据历史车辆行程信息的变化情况来动态调整交通流量参数，以优化模型的训练和性能。
@@ -190,15 +173,16 @@ try:
                 # 当历史记录数据量超过250时，表示已经收集了一定数量的数据，可以进行后续的判断。
                 # 如果方差小于0.005倍的流量，则认为环境变化不大，可以增加流量。
                 # 如果历史记录数据量超过1000条，即已经收集了一定量的数据，也可以增加流量。
-                if len(a) > 250:
-                    # if np.mean(a[:,7][-1000:]) < 0.5:
-                    if np.var(a[:,7][-250:]) < 0.005*flow or len(a) > 1000:
-                        flow += 25
-                        simulacion.flow = flow
-                        print(f'提升flow至: {flow}；此时方差为: {np.var(a[:,7][-100:])}')
-                        training_tripinfo = []
-                        best_timeloss = 9999
-                        best_collisions = 9999
+                if args.class_learn:
+                    if len(a) > 250:
+                        # if np.mean(a[:,7][-1000:]) < 0.5:
+                        if np.var(a[:,7][-250:]) < 0.005*flow or len(a) > 1000:
+                            flow += 25
+                            simulacion.flow = flow
+                            print(f'提升flow至: {flow}；此时方差为: {np.var(a[:,7][-100:])}')
+                            training_tripinfo = []
+                            best_timeloss = 9999
+                            best_collisions = 9999
                 # 保留最好
                 # 当前的碰撞次数和时间损失均优于历史最佳值
                 if best_collisions >= np.sum(c) and best_timeloss >= ti[7]:
@@ -210,7 +194,6 @@ try:
                     simulacion.im.agent.save_weights(save_dir)
 
                 print(f'Simulation: {epoch}; Mean duration: {ti[5]:.2f}, Mean wtime: {ti[6]:.2f}, Mean timeloss: {ti[7]:.2f}, flow: {simulacion.flow}, reward: {t[1]}, score: {t[2]}\n')
-                # print(f'Training records: {t}')
             except Exception as e:
                 print("type error: " + str(e))
     simulacion.im.agent.memory.save_experience()

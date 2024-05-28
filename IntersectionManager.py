@@ -30,7 +30,7 @@ class IntersectionManager:
     the vehicles in each intersection.
     """
 
-    def __init__(self, inter_id, inductionloops, seed, train=False):
+    def __init__(self, inter_id, inductionloops, seed, model_name, train=False, policy_noise=True, cf=False):
         self._id = inter_id # 交叉路口id
         self._traci = traci # sumo路由
 
@@ -142,9 +142,11 @@ class IntersectionManager:
 # =============================================================================
         state_size = self.observation_space # 状态空间大小
         action_size = action_space # 动作空间大小
-        self.agent = Agent(state_size, action_size) # 代理
+        self.agent = Agent(state_size, action_size, model_name, policy_noise) # 代理
         self.LEARN_EVERY = 60 # 学习频率
         self.epoch = 0 # 轮次
+
+        self.cf = cf
 
         # self._score = 0
 
@@ -418,9 +420,8 @@ class IntersectionManager:
         if self.actions:
             for k, v in self.actions.items():
                 try:
-                    # traci.vehicle.setSpeedMode(k, 31)
-                    # if v.item()!=1:
-                    #     print(v.item())
+                    if v.item()!=1:
+                        print(v.item())
                     v = (v + 1)/2*13.39 + 0.5 # ？？什么玩意调整 13.39
                     traci.vehicle.slowDown(k, v, traci.simulation.getDeltaT()) # 选择sumo路由中的对应车辆，将其加/减速到对应值
                 except Exception as e:
@@ -632,9 +633,10 @@ class IntersectionManager:
             # 返回的vehicles是包含车辆信息的字典，键是车辆的标识符，值是包含车辆信息的字典
 
             if vehicles: # 如果有车，调用rma
-                for veh in vehicles:
-                    self._traci.vehicle.setLaneChangeMode(veh,0b000000000000)
-                    self._traci.vehicle.setSpeedMode(veh,00000)
+                if self.cf == False:
+                    for veh in vehicles:
+                        traci.vehicle.setLaneChangeMode(veh,0b000000000000)
+                        traci.vehicle.setSpeedMode(veh, 000000)
                 # print(f'\n Found {len(vehicles)} vehicles before filtering')
                 # print(f'\t Keys: {vehicles.keys()}')
                 return self._remove_moving_away(self._id, vehicles) # If vehicles are approaching the intersection 

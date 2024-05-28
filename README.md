@@ -26,6 +26,16 @@ conda install --file requirements.txt
 
 ## How to run
 Just run the _main_1_1_v2.py_ file
+```bash
+# TD3 默认开启课程学习、策略噪声, 关闭跟驰与变道模型
+python main_1_1_v2.py --model_name=TD3-CL
+
+# TD3 关闭课程学习、策略噪声, 关闭跟驰与变道模型
+python main_1_1_v2.py --model_name=TD3 --class_learn=False --policy_noise=False
+
+# TD3 关闭课程学习、策略噪声, 开启跟驰与变道模型
+python main_1_1_v2.py --model_name=TD3-CF --class_learn=False --policy_noise=False --cf=True
+```
 
 ## How to change control algorithms
 By default is used the fixed traffic light algorithm with a green time defined by: `greentime=(120-10)//2`

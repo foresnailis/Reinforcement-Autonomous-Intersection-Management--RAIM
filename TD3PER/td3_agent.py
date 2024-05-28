@@ -49,7 +49,7 @@ print('Device on TD3-PER:', device)
 class Agent():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, model_name, policy_noise=True):
         """Initialize an Agent object.
 
         Params
@@ -84,7 +84,9 @@ class Agent():
         self.noise = OUNoise(action_size)
 
         # Replay memory
-        self.memory = PER(BUFFER_SIZE)
+        self.memory = PER(BUFFER_SIZE, memory_file = model_name + '_experience.pkl')
+
+        self.policy_noise = policy_noise
 
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory."""
@@ -139,14 +141,15 @@ class Agent():
             # 噪声添加
             # ---------------------------- update critic ---------------------------- #
             # Target Policy Smoothing Regularization: add a small amount of clipped random noises to the selected action
-            if POLICY_NOISE > 0.0:
-                noise = torch.empty_like(actions).data.normal_(0, POLICY_NOISE).to(device)
-                noise = noise.clamp(-POLICY_NOISE_CLIP, POLICY_NOISE_CLIP)
-                # Get predicted next-state actions and Q values from target models
-                actions_next = (self.actor_target(next_states) + noise).clamp(-1., 1.)
-            else:
-                # Get predicted next-state actions and Q values from target models
-                actions_next = self.actor_target(next_states)
+            if self.policy_noise:
+                if POLICY_NOISE > 0.0:
+                    noise = torch.empty_like(actions).data.normal_(0, POLICY_NOISE).to(device)
+                    noise = noise.clamp(-POLICY_NOISE_CLIP, POLICY_NOISE_CLIP)
+                    # Get predicted next-state actions and Q values from target models
+                    actions_next = (self.actor_target(next_states) + noise).clamp(-1., 1.)
+                else:
+                    # Get predicted next-state actions and Q values from target models
+                    actions_next = self.actor_target(next_states)
             
             actions_next = self.actor_target(next_states)
 

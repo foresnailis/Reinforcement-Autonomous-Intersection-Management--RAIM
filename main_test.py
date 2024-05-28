@@ -80,7 +80,7 @@ escenario = ScenarioFive(red_manhattan)
 nlanes = 2
 simulacion = SumoSimulation(red_manhattan, gui=False, lanes=nlanes,
                             nrows=nrows, ncols=ncols, leng=length,
-                            seed=SEED, flow=250)
+                            seed=SEED, flow=250,agent='TD3')
 
 # Algoritmo para controlar los semáforos. Deprecated in v3
 # 控制交通灯的算法。V3中折旧
@@ -108,7 +108,7 @@ print(time.strftime("Elapsed time: %H:%M:%S", time.gmtime(elapsed_time)))
 simulacion.simulation_duration = 5*60
 simulacion.flow = flow
 
-c = simulacion.run_test_simulation(weight_path='ckpt/DDPG-CL/150_best')  # 执行一次仿真
+c = simulacion.run_test_simulation(weight_path='ckpt/TD3-CL/150_best')  # 执行一次仿真
 
 ti = simulacion.getTripinfo() # 获取仿真车辆的行程信息
 

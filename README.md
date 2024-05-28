@@ -37,7 +37,7 @@ python main_1_1_v2.py --model_name=TD3 --class_learn=False --policy_noise=False
 python main_1_1_v2.py --model_name=TD3-CF --class_learn=False --policy_noise=False --cf=True
 
 # DDPG 默认开启课程学习, 关闭跟驰与变道模型
-python main_1_1_v2.py --model_name=DDPG-CL
+python main_1_1_v2.py --model_name=DDPG-CL --agent=DDPG
 ```
 
 ## How to change control algorithms

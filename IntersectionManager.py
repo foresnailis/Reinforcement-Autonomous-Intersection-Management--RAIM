@@ -380,8 +380,8 @@ class IntersectionManager:
         if self.actions:
             for k, v in self.actions.items():
                 try:
-                    if v.item()!=1:
-                        print(v.item())
+                    # if v.item()!=1:
+                    #     print(v.item())
                     v = (v + 1)/2*30 + 0.5 # ？？什么玩意调整 13.39
                     traci.vehicle.slowDown(k, v, traci.simulation.getDeltaT()) # 选择sumo路由中的对应车辆，将其加/减速到对应值
                 except Exception as e:

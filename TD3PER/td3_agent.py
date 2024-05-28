@@ -43,7 +43,6 @@ critic2_weights_file = 'weights_critic2.pt'
 
 device = torch.device("cuda:0")
 # device = torch.device('cpu')
-print('Device on TD3-PER:', device)
 
 
 class Agent():
@@ -58,6 +57,7 @@ class Agent():
             action_size (int): dimension of each action
             random_seed (int): random seed
         """
+        print('Device on TD3-PER:', device)
         self.state_size = state_size
         self.action_size = action_size
         self.Q1loss = 0

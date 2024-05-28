@@ -12,7 +12,6 @@ from TD3PER.model import Actor, Critic
 from TD3PER.PER import PER
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print('Device on DDPG:', device)
 
 BUFFER_SIZE = 2**17
 BATCH_SIZE = 64
@@ -25,6 +24,7 @@ LEARN_BATCH = 1
 
 class DDPGAgent:
     def __init__(self, state_size, action_size, model_name):
+        print('Device on DDPG:', device)
         self.state_size = state_size
         self.action_size = action_size
         self.Q1loss = 0
@@ -69,7 +69,7 @@ class DDPGAgent:
 
             Q_expected = self.critic_local(states, actions)
             critic_loss = F.mse_loss(Q_expected, Q_targets)
-            self.Qloss += critic_loss.item()
+            self.Q1loss += critic_loss.item()
 
             self.critic_optimizer.zero_grad()
             critic_loss.backward()
@@ -86,7 +86,7 @@ class DDPGAgent:
             self.soft_update(self.critic_local, self.critic_target, TAU)
             self.soft_update(self.actor_local, self.actor_target, TAU)
 
-        self.Qloss /= LEARN_BATCH
+        self.Q1loss /= LEARN_BATCH
         self.Aloss /= LEARN_BATCH
 
     def soft_update(self, local_model, target_model, tau):

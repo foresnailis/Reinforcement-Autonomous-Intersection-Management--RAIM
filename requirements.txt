@@ -5,3 +5,4 @@ sumolib==1.19.0
 torch==2.2.0+cu118
 traci==1.19.0
 unityagents==0.4.0
+seaborn==0.13.2

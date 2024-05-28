@@ -30,7 +30,7 @@ class IntersectionManager:
     the vehicles in each intersection.
     """
 
-    def __init__(self, inter_id, inductionloops, seed, model_name, train=False, policy_noise=True, cf=False, agent='TD3'):
+    def __init__(self, inter_id, inductionloops, seed, model_name, train=False, policy_noise=True, cf=False, agent='TD3', max_speed=30):
         self._id = inter_id # 交叉路口id
         self._traci = traci # sumo路由
 
@@ -107,6 +107,8 @@ class IntersectionManager:
         self.epoch = 0 # 轮次
 
         self.cf = cf
+
+        self.max_speed = max_speed
 
         # self._score = 0
 
@@ -381,14 +383,16 @@ class IntersectionManager:
             for k, v in self.actions.items():
                 try:
                     # if v.item()!=1:
-                    #     print(v.item())
-                    v = (v + 1)/2*30 + 0.5 # ？？什么玩意调整 13.39
+                    #     print(self.max_speed, v.item())
+                    v = (v + 1)/2*self.max_speed + 0.5 # ？？什么玩意调整 13.39
                     traci.vehicle.slowDown(k, v, traci.simulation.getDeltaT()) # 选择sumo路由中的对应车辆，将其加/减速到对应值
                 except Exception as e:
                     print(f"Error while perform action")
                     print(e)
                 # print(f'Vehicle: {k}; Action: {v[0]}')
-
+    
+    def change_maxSpeed(self, speed):
+        self.max_speed=speed
 
     def obtain_exit(self): # 得到退出标志位
         return self._exit

@@ -122,8 +122,11 @@ class SumoSimulation(object):
     def time(self):
         return self._time
     
-    def change_agent(self, agent):
-        self.im = IntersectionManager('A0', 'pppqw', seed = self.seed, policy_noise=self.policy_noise, cf=self.cf, model_name=self.model_name, agent=agent)
+    def change_agent(self, agent, cf=False):
+        self.im = IntersectionManager('A0', 'pppqw', seed = self.seed, policy_noise=self.policy_noise, cf=cf, model_name=self.model_name, agent=agent)
+
+    def change_maxSpeed(self, speed=30):
+        self.im.change_maxSpeed(speed)
 
     def change_graph(self,sg): # Graph更新与相关结构更新
         self.sg = sg
@@ -171,8 +174,6 @@ class SumoSimulation(object):
         self.im.control_tls()  # 更改信号灯
         self.im.reset_values()  # 重置值
         self.im.score = 0 # 初始化分数
-
-        
 
         '''
         不断循环以下过程
@@ -325,44 +326,79 @@ class SumoSimulation(object):
 #
     def getTripinfo(self): # 从tripinfo中取得行程信息
         total_trips = 0
+
         total_timeloss = 0
         total_duration = 0
         total_wtime = 0
 
-        average_relative_timeloss = 0
-        average_duration = 0
-        average_timeloss = 0
-        average_wtime = 0
+        avg_relative_timeloss = 0
+        avg_duration = 0
+        avg_timeloss = 0
+        avg_wtime = 0
         max_timeloss = 0
 
+        total_CO_abs = 0
+        total_CO2_abs = 0
+        total_HC_abs = 0
+        total_PMx_abs = 0
+        total_NOx_abs = 0
+        total_fuel_abs = 0
+
         try:
-            with open('results/tripinfo_.xml') as f:
-                content = f.readlines()
-            for line in content:
-                if "<tripinfo id=" in line:
-                    total_trips += 1
-                    xml_string = "<tripinfos>"
-                    xml_string = "".join((xml_string, line))
-                    xml_string = "/n".join((xml_string, "</tripinfos>"))
-                    xml_string = xml_string.replace('>\n', '/>\n')
-                    open_data = minidom.parseString(xml_string)
-                    intervals_open = open_data.getElementsByTagName('tripinfo')
-                    timeloss = float(intervals_open[0].getAttribute('timeLoss'))
-                    duration = float(intervals_open[0].getAttribute('duration'))
-                    wtime = float(intervals_open[0].getAttribute('waitingTime'))
-                    max_timeloss = np.maximum(max_timeloss, timeloss)
+            import xml.dom.minidom
+            # 读取XML文件内容
+            with open('results/tripinfo_.xml', 'r') as file:
+                xml_content = file.read()
 
-                    total_timeloss += timeloss
-                    total_duration += duration
-                    total_wtime += wtime
+            # 检查并添加缺失的关闭标签
+            if not xml_content.strip().endswith('</tripinfos>'):
+                xml_content += '</tripinfos>'
+            # 解析XML文件
+            dom = xml.dom.minidom.parseString(xml_content)
+            tripinfos = dom.getElementsByTagName('tripinfo')
 
-                    relative_timeloss = timeloss / duration
-                    average_relative_timeloss = ((average_relative_timeloss * (
+            for tripinfo in tripinfos:
+                duration = float(tripinfo.getAttribute('duration'))
+                timeloss = float(tripinfo.getAttribute('timeLoss'))
+                waitingtime = float(tripinfo.getAttribute('waitingTime'))
+                
+                emissions = tripinfo.getElementsByTagName('emissions')[0]
+                CO_abs = float(emissions.getAttribute('CO_abs'))
+                CO2_abs = float(emissions.getAttribute('CO2_abs'))
+                HC_abs = float(emissions.getAttribute('HC_abs'))
+                PMx_abs = float(emissions.getAttribute('PMx_abs'))
+                NOx_abs = float(emissions.getAttribute('NOx_abs'))
+                fuel_abs = float(emissions.getAttribute('fuel_abs'))
+
+                # 累加值
+                total_duration += duration
+                total_timeloss += timeloss
+                total_wtime += waitingtime
+                total_CO_abs += CO_abs
+                total_CO2_abs += CO2_abs
+                total_HC_abs += HC_abs
+                total_PMx_abs += PMx_abs
+                total_NOx_abs += NOx_abs
+                total_fuel_abs += fuel_abs
+                total_trips += 1
+
+                max_timeloss = np.maximum(max_timeloss, timeloss)
+
+                relative_timeloss = timeloss / duration
+                avg_relative_timeloss = ((avg_relative_timeloss * (
                             total_trips - 1) + relative_timeloss) / total_trips)
 
-            average_duration = total_duration / total_trips
-            average_timeloss = total_timeloss / total_trips
-            average_wtime = total_wtime / total_trips
+            # 计算平均值
+            avg_duration = total_duration / total_trips
+            avg_timeloss = total_timeloss / total_trips
+            avg_wtime = total_wtime / total_trips
+
+            avg_CO_abs = total_CO_abs / total_trips
+            avg_CO2_abs = total_CO2_abs / total_trips
+            avg_HC_abs = total_HC_abs / total_trips
+            avg_PMx_abs = total_PMx_abs / total_trips
+            avg_NOx_abs = total_NOx_abs / total_trips
+            avg_fuel_abs = total_fuel_abs / total_trips
 
         except Exception as e:
             print("type error: " + str(e))
@@ -370,9 +406,11 @@ class SumoSimulation(object):
 
         finally:
             return [total_trips, total_timeloss, total_duration, total_wtime,
-                    average_relative_timeloss, average_duration, average_wtime,
-                    average_timeloss, max_timeloss]
+                    avg_relative_timeloss, avg_duration, avg_wtime,
+                    avg_timeloss, max_timeloss, total_CO_abs / total_trips,
+                    total_CO2_abs / total_trips,total_HC_abs / total_trips,total_PMx_abs / total_trips,total_NOx_abs / total_trips,total_fuel_abs / total_trips]
         return self.co2em
+    
     def reset_statistics(self):
         self._time = 0
         self.cars = {}

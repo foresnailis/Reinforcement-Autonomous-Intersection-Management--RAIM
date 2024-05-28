@@ -101,8 +101,6 @@ simulation.change_scenario(escenario) # 设置交通场景
 model_list = [
     'DDPG-CL',
     'TD3-CL',
-    'TD3-CL-15',
-    'TD3',
     'TD3-PER',
     'Krauss'
 ]
@@ -110,7 +108,9 @@ model_list = [
 flow_list = [100, 125, 150, 175, 200, 250, 300, 350, 400]
 
 import seaborn as sns
+import requests
 import pandas as pd
+import openpyxl
 import matplotlib.pyplot as plt
 
 # 准备数据存储结构
@@ -118,16 +118,21 @@ results = []
 
 for model_name in model_list:
     for flow in flow_list:
+        print(f"Model name : {model_name} Flow = {flow}")
         simulation.flow = flow
         if model_name == 'Krauss':
             c = simulation.run_test_simulation(is_agent=False)
             ti = simulation.getTripinfo()
         else:
-            weight_path = os.path.join('ckpt', model_name, '150_simple')
+            weight_path = os.path.join('ckpt', model_name, '150_best')
             if 'DDPG' in model_name:
                 simulation.change_agent('DDPG')
             elif 'TD3' in model_name:
-                simulation.change_agent('TD3')
+                if model_name == 'TD3-PER':
+                    simulation.change_maxSpeed(13.39)
+                    simulation.change_agent('TD3', cf=True)
+                else:
+                    simulation.change_agent('TD3')
             
             c = simulation.run_test_simulation(weight_path=weight_path, is_agent=True)
             ti = simulation.getTripinfo()
@@ -137,37 +142,15 @@ for model_name in model_list:
             'Model': model_name,
             'Flow': flow,
             'Mean Duration': ti[5],
-            'Mean Wait Time': ti[6],
-            'Mean Time Loss': ti[7],
-            'Collisions': c
+            'Collisions': c,
+            'CO': ti[9],
+            'CO2': ti[10],
+            'HC': ti[11],
+            'PMx': ti[12],
+            'NOx': ti[13],
+            'Fuel Consumption': ti[14],
         })
 
 # 转换为DataFrame
 df = pd.DataFrame(results)
-
-# 绘图
-plt.figure(figsize=(12, 8))
-sns.set(style="whitegrid")
-
-# Mean Duration
-plt.subplot(2, 3, 1)
-sns.lineplot(x='Flow', y='Mean Duration', hue='Model', data=df)
-plt.title('Mean Duration by Model and Flow')
-
-# Mean Wait Time
-plt.subplot(2, 3, 2)
-sns.lineplot(x='Flow', y='Mean Wait Time', hue='Model', data=df)
-plt.title('Mean Wait Time by Model and Flow')
-
-# Mean Time Loss
-plt.subplot(2, 3, 3)
-sns.lineplot(x='Flow', y='Mean Time Loss', hue='Model', data=df)
-plt.title('Mean Time Loss by Model and Flow')
-
-# Collisions
-plt.subplot(2, 3, 4)
-sns.lineplot(x='Flow', y='Collisions', hue='Model', data=df)
-plt.title('Collisions by Model and Flow')
-
-plt.tight_layout()
-plt.show()
+df.to_excel('simulation_results.xlsx')

@@ -12,7 +12,9 @@ __version__ = "3.0"
 __email__ = "bryanfv95@gmail.com"
 
 class ManhattanAlgorithm(SumoAlgorithm):
+
     def __init__(self,wq,lanes):
+    
         self.lanes = lanes
         n = self.lanes
         NSGREEN = ("G"+"G"*n+"r"+"r"*n)*(2) + 'rrrr'
@@ -46,11 +48,30 @@ class ManhattanAlgorithm(SumoAlgorithm):
         super(ManhattanAlgorithm,self).__init__(program,[0,6])
 
         self.wq = wq
+    # def __init__(self, wq, lanes):
+    #     self.lanes = lanes
+    #     n = self.lanes
+    #     # Traffic light configurations for each direction
+    #     NORTHGREEN = ("G" + "G" * n + "r" + "r" * n) * 2 + 'rrrr'
+    #     NORTHYELLOW = ("y" + "y" * n + "r" + "r" * n) * 2 + 'ryry'
+    #     SOUTHGREEN = ("r" + "r" * n + "G" + "G" * n) * 2 + 'rrrr'
+    #     SOUTHYELLOW = ("r" + "r" * n + "y" + "y" * n) * 2 + 'yryr'
+    #     EASTGREEN = ("r" + "r" * n + "r" + "r" * n) + "G" * (n + 1) + "r" * (n + 1)
+    #     EASTYELLOW = ("r" + "r" * n + "r" + "r" * n) + "y" * (n + 1) + "r" * (n + 1)
+    #     WESTGREEN = ("r" + "r" * n + "r" + "r" * n) + "r" * (n + 1) + "G" * (n + 1)
+    #     WESTYELLOW = ("r" + "r" * n + "r" + "r" * n) + "r" * (n + 1) + "y" * (n + 1)
+    #     CLEAR = ("r" + "r" * n + "r" + "r" * n) * 2 + 'rrrr'
 
-#    def get_statistics(self):
-#        return  sum(map(sum,self.waittimes))/(self.sm.num_veh),\
-#                sum(map(sum,self.waittimes_ped))/(self.sm.num_ped),\
-#                sum(map(sum,self.queues))/(4*len(self.queues))
+    #     program = [
+    #         NORTHGREEN, NORTHYELLOW, NORTHYELLOW, NORTHYELLOW, CLEAR, CLEAR,
+    #         SOUTHGREEN, SOUTHYELLOW, SOUTHYELLOW, SOUTHYELLOW, CLEAR, CLEAR,
+    #         EASTGREEN, EASTYELLOW, EASTYELLOW, EASTYELLOW, CLEAR, CLEAR,
+    #         WESTGREEN, WESTYELLOW, WESTYELLOW, WESTYELLOW, CLEAR, CLEAR
+    #     ]
+
+    #     super(ManhattanAlgorithm, self).__init__(program, [0, 6, 12, 18])
+    #     self.wq = wq
+
 
     def reset_algorithm(self,sm):
         super(ManhattanAlgorithm,self).reset_algorithm(sm)

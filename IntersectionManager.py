@@ -78,7 +78,7 @@ class IntersectionManager:
         self._running_reward = -1000
 
         torch.manual_seed(self._SEED)
-        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # 设备
 
         # PPO Agent
         # self.agent = Agent(self._device)
@@ -351,14 +351,7 @@ class IntersectionManager:
 
     def select_actions(self):
         if self.raw_data and not self.raw_data == [-1]:
-            # print('There are something')
-            # with ThreadPoolExecutor(max_workers=3) as executor:
-                # future = executor.map(self.select_actions_mp, self.raw_data)
-                # print(results.result())
-            # keys = self.raw_data.keys()
-            # with ThreadPoolExecutor(max_workers=self.workers) as executor:
-                # results = executor.map(self.select_actions_mp, keys)
-
+            
             for k, v in self.raw_data.items():
                 s = torch.Tensor(self.state[k]).to(self._device)
                 try:
@@ -396,6 +389,42 @@ class IntersectionManager:
                     print(f"Error while perform action")
                     print(e)
                 # print(f'Vehicle: {k}; Action: {v[0]}')
+    
+    def perform_actions_on_rule():
+        # 获取所有交通信号灯的ID
+        traffic_lights = traci.trafficlight.getIDList()
+
+        # 获取所有车辆的ID
+        vehicle_ids = traci.vehicle.getIDList()
+
+        # 对于每辆车，检查其即将进入的路口的信号状态
+        for vid in vehicle_ids:
+            # 获取车辆即将驶入的路段
+            next_edge = traci.vehicle.getNextTLS(vid)
+
+            # 如果有即将到来的交通信号灯信息
+            if next_edge:
+                # 获取交通信号灯ID和该信号灯对应的状态
+                tls_id, tls_index, dist, state = next_edge[0]
+                # 如果状态为红灯 ('r')
+                if state == 'r':
+                    # 设置车速为0，使车辆停止
+                    traci.vehicle.setSpeed(vid, 0)
+                else:
+                    # 否则恢复车辆的正常速度
+                    # 这里使用None将车辆的速度控制权交还给SUMO，以便使用车辆的默认速度模型
+                    traci.vehicle.setSpeed(vid, -1)
+
+    def perform_random_actions(self):
+        if self.actions:
+            for k, v in self.actions.items():
+                try:
+                    # 生成一个在合理范围内的随机速度
+                    random_speed = random.uniform(0, 13.89)  # 0 到 13.89 米/秒之间的随机速度
+                    traci.vehicle.slowDown(k, 13.89, traci.simulation.getDeltaT())
+                except Exception as e:
+                    print(f"Error while perform random action for vehicle {k}")
+                    print(e)
 
 
     def obtain_exit(self):
@@ -611,7 +640,7 @@ class IntersectionManager:
             if vehicles:
                 # print(f'\n Found {len(vehicles)} vehicles before filtering')
                 # print(f'\t Keys: {vehicles.keys()}')
-                return self._remove_moving_away(self._id, vehicles) # If vehicles are approaching the intersection
+                return self._remove_moving_away(self._id, vehicles) # If vehicles are approaching the intersection 
 
             else:
                 # print('No vehicles found')

@@ -40,7 +40,7 @@ actor_weights_file = 'weights_actor.pt'
 critic1_weights_file = 'weights_critic1.pt'
 critic2_weights_file = 'weights_critic2.pt'
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # device = torch.device('cpu')
 print('Device on TD3-PER:', device)
 

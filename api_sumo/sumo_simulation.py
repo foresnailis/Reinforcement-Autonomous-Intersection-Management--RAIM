@@ -188,16 +188,17 @@ class SumoSimulation(object):
         self.init_simulation()
         self._traci.simulationStep()
         self.im.update_state()
-        self.im.control_tls()
-        self.im.score = 0
+        # self.im.control_tls()
+        self.im.score = 0  
 
         try:
-            self.im.agent.load_param()
+            collisions = []
+            self.im.agent.load_weights(weight_path)
             while self._traci.simulation.getMinExpectedNumber() > 0:
                 if self._traci.simulation.getTime() % 30 == 0:
                     print(f'Simulation: {self.i_ep}; Time: {self._traci.simulation.getTime()}')
-                self.im.select_actions()
-                self.im.perform_actions()
+                # self.im.select_actions()
+                # self.im.perform_actions_on_rule()
                 self._traci.simulationStep()
                 self.im.update_state()
 

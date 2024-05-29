@@ -100,15 +100,15 @@ simulation.change_algorithm(Fixed) # 设置控制算法
 simulation.change_scenario(escenario) # 设置交通场景
 
 model_list = [
-    # 'DDPG-CL',
-    #'TD3-CL',
-    # 'TD3-PER',
-    # 'Krauss',
+    'DDPG-CL',
+    'TD3-CL',
+    'TD3-PER',
+    'Krauss',
     'rule_base'
 ]
 
-# flow_list = [100, 125, 150, 175, 200, 250, 300, 350, 400]
-flow_list = [150]
+flow_list = [100, 125, 150, 175, 200, 250, 300, 350, 400]
+# flow_list = [150]
 import seaborn as sns
 import requests
 import pandas as pd
@@ -123,10 +123,13 @@ for model_name in model_list:
         print(f"Model name : {model_name} Flow = {flow}")
         simulation.flow = flow
         if model_name == 'Krauss':
+            simulation.change_agent('TD3', cf=True)
             c = simulation.run_test_simulation(is_agent=False)
             ti = simulation.getTripinfo()
         elif model_name =='rule_base':
-            c = simulation.run_test_simulation(is_agent=False,is_rule='rule')
+            simulation.tl = True
+            simulation.change_agent('TD3', cf=True)
+            c = simulation.run_test_simulation(is_agent=False)
             ti = simulation.getTripinfo()
         else:
             weight_path = os.path.join('ckpt', model_name, '150_best')
@@ -158,4 +161,4 @@ for model_name in model_list:
 
 # 转换为DataFrame
 df = pd.DataFrame(results)
-# df.to_excel('simulation_results.xlsx')
+df.to_excel('simulation_results.xlsx')

@@ -63,7 +63,8 @@ class SumoSimulation(object):
                  cf=False,
                  model_name='Test',
                  agent='TD3',
-                 map='Default'):
+                 map='Default',
+                 tl = False):
         self.sg = sg
         self.ss = ss
         self.sa = sa
@@ -110,6 +111,7 @@ class SumoSimulation(object):
         self.cf = cf
         self.model_name = model_name
         self.agent = agent
+        self.tl = tl
 
         self.running_reward = -1000
         self.rewards = []
@@ -258,7 +260,7 @@ class SumoSimulation(object):
             self.close_simulation()
             return [self.rewards, TrainingRecord(self.i_ep, self.running_reward, score), states, actions, collisions, self.im.agent.Q1loss, self.im.agent.Q2loss, self.im.agent.Aloss, self.im.agent.Q1, self.im.agent.Q2]
 
-    def run_test_simulation(self, weight_path='ckpt', is_agent=True,is_rule= 'Default'):  # 测试模拟
+    def run_test_simulation(self, weight_path='ckpt', is_agent=True):  # 测试模拟
         self.init_simulation()
         self.reset_statistics()
         self._traci.simulationStep()
@@ -267,7 +269,7 @@ class SumoSimulation(object):
         collisions = []
 
         states.append(self.im.first_state())  # 状态更新，拿到当前交叉口车辆所有状态
-        if is_rule == 'Default':
+        if self.tl == False:
             self.im.control_tls()  # 更改信号灯
         self.im.reset_values()  # 重置值
         self.im.score = 0  # 初始化分数
@@ -490,7 +492,6 @@ class SumoSimulation(object):
             self.process = subprocess.Popen([self.sm,
                                              '-n=' + self.net_file,
                                              '-r=' + self.rou_file,
-                                             '-a=' + self.poly_file,
                                              '-X=never',
                                              '--seed=' + str(self.seed),
                                              '--junction-taz',
@@ -501,7 +502,7 @@ class SumoSimulation(object):
                                              '--device.emissions.probability=1',
                                              '--waiting-time-memory=1000',
                                              '--collision.check-junctions=true',
-                                             '--collision.action=warn'])
+                                             '--collision.action=warn'] + (['-a=' + self.poly_file] if self.map != 'Default' else []))
         else:
             # ' '.join([self.smg,
             #           '-n=sumodata/net.xml',
@@ -514,7 +515,6 @@ class SumoSimulation(object):
             self.process = subprocess.Popen([self.smg,
                                              '-n=' + self.net_file,
                                              '-r=' + self.rou_file,
-                                             '-a=' + self.poly_file,
                                              '-X=never',
                                              '--seed=' + str(self.seed),
                                              '--junction-taz',
@@ -525,7 +525,7 @@ class SumoSimulation(object):
                                              '--device.emissions.probability=1',
                                              '--waiting-time-memory=1000',
                                              '--collision.check-junctions=true',
-                                             '--collision.action=warn'])
+                                             '--collision.action=warn'] + (['-a=' + self.poly_file] if self.map != 'Default' else []))
         
         self._traci.init(self.port)  # 初始化traci控制器与sumo进程交互
 

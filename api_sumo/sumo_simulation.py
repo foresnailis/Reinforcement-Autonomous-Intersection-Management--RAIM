@@ -258,7 +258,7 @@ class SumoSimulation(object):
             self.close_simulation()
             return [self.rewards, TrainingRecord(self.i_ep, self.running_reward, score), states, actions, collisions, self.im.agent.Q1loss, self.im.agent.Q2loss, self.im.agent.Aloss, self.im.agent.Q1, self.im.agent.Q2]
 
-    def run_test_simulation(self, weight_path='ckpt', is_agent=True):  # 测试模拟
+    def run_test_simulation(self, weight_path='ckpt', is_agent=True,is_rule= 'Default'):  # 测试模拟
         self.init_simulation()
         self.reset_statistics()
         self._traci.simulationStep()
@@ -267,7 +267,7 @@ class SumoSimulation(object):
         collisions = []
 
         states.append(self.im.first_state())  # 状态更新，拿到当前交叉口车辆所有状态
-        if self.map == 'Default':
+        if is_rule == 'Default':
             self.im.control_tls()  # 更改信号灯
         self.im.reset_values()  # 重置值
         self.im.score = 0  # 初始化分数

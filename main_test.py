@@ -94,16 +94,17 @@ simulation = SumoSimulation(red_manhattan, gui=args.gui, lanes=args.nlanes,
                             nrows=args.nrows, ncols=args.ncols, leng=args.length,
                             seed=args.seed, flow=args.flow,
                             policy_noise=args.policy_noise, cf= args.cf, model_name=args.model_name, agent=args.agent,
-                            map = 'map')
+                            map = 'Default')
 simulation.seed = SEED
 simulation.change_algorithm(Fixed) # 设置控制算法
 simulation.change_scenario(escenario) # 设置交通场景
 
 model_list = [
     # 'DDPG-CL',
-    'TD3-CL',
+    #'TD3-CL',
     # 'TD3-PER',
-    # 'Krauss'
+    # 'Krauss',
+    'rule_base'
 ]
 
 # flow_list = [100, 125, 150, 175, 200, 250, 300, 350, 400]
@@ -123,6 +124,9 @@ for model_name in model_list:
         simulation.flow = flow
         if model_name == 'Krauss':
             c = simulation.run_test_simulation(is_agent=False)
+            ti = simulation.getTripinfo()
+        elif model_name =='rule_base':
+            c = simulation.run_test_simulation(is_agent=False,is_rule='rule')
             ti = simulation.getTripinfo()
         else:
             weight_path = os.path.join('ckpt', model_name, '150_best')

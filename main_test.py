@@ -93,7 +93,8 @@ Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=args.nlanes)
 simulation = SumoSimulation(red_manhattan, gui=args.gui, lanes=args.nlanes,
                             nrows=args.nrows, ncols=args.ncols, leng=args.length,
                             seed=args.seed, flow=args.flow,
-                            policy_noise=args.policy_noise, cf= args.cf, model_name=args.model_name, agent=args.agent)
+                            policy_noise=args.policy_noise, cf= args.cf, model_name=args.model_name, agent=args.agent,
+                            map = 'tj')
 simulation.seed = SEED
 simulation.change_algorithm(Fixed) # 设置控制算法
 simulation.change_scenario(escenario) # 设置交通场景

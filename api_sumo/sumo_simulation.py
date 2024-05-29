@@ -62,7 +62,8 @@ class SumoSimulation(object):
                  policy_noise=True,
                  cf=False,
                  model_name='Test',
-                 agent='TD3'):
+                 agent='TD3',
+                 map='Default'):
         self.sg = sg
         self.ss = ss
         self.sa = sa
@@ -70,11 +71,6 @@ class SumoSimulation(object):
         self.sgC = True
         self.ssC = True
         self.saC = True
-
-        self.map_file = 'sumodata/tj.osm'
-        self.net_file = 'sumodata/tj.net.xml'
-        self.rou_file = 'sumodata/tj.rou.xml'
-        self.poly_file = 'sumodata/tj.poly.xml'
 
         self.nc = nc
         plt = platform.system()
@@ -128,6 +124,19 @@ class SumoSimulation(object):
 
         self.im = IntersectionManager(self.junction_id_list[-1], 'pppqw',
                                       seed=self.seed, policy_noise=self.policy_noise, cf=cf, model_name=self.model_name, agent=agent)
+        
+        self.map = map
+
+        self.map_file = 'sumodata/tj.osm'
+        self.poly_file = 'sumodata/tj.poly.xml'
+
+        if self.map != 'Default':
+            import os
+            self.net_file = os.path.join('sumodata', self.map+'.net.xml')
+            self.rou_file = os.path.join('sumodata', self.map+'.rou.xml')
+        else:
+            self.net_file = 'sumodata/net_'+ str(self.nrows)+'_'+str(self.ncols)+'.xml'
+            self.rou_file = 'sumodata/veh_routes_'+str(self.nrows)+'_'+str(self.ncols)+'.xml'
 
     @property
     def traci(self):
@@ -259,7 +268,8 @@ class SumoSimulation(object):
         collisions = []
 
         states.append(self.im.first_state())  # 状态更新，拿到当前交叉口车辆所有状态
-        # self.im.control_tls()  # 更改信号灯
+        if self.map == 'Default':
+            self.im.control_tls()  # 更改信号灯
         self.im.reset_values()  # 重置值
         self.im.score = 0  # 初始化分数
 
@@ -416,13 +426,6 @@ class SumoSimulation(object):
             avg_timeloss = total_timeloss / total_trips
             avg_wtime = total_wtime / total_trips
 
-            avg_CO_abs = total_CO_abs / total_trips
-            avg_CO2_abs = total_CO2_abs / total_trips
-            avg_HC_abs = total_HC_abs / total_trips
-            avg_PMx_abs = total_PMx_abs / total_trips
-            avg_NOx_abs = total_NOx_abs / total_trips
-            avg_fuel_abs = total_fuel_abs / total_trips
-
         except Exception as e:
             print("type error: " + str(e))
             print("getTripinfo的错误：" + traceback.format_exc())
@@ -471,7 +474,10 @@ class SumoSimulation(object):
 #            self.y.append(0)
 
     def init_simulation(self):  # 初始化模拟
-        self.create_net_rou_poly_files()
+        if self.map == 'Default':
+            self.create_route_files_v2()
+        else:
+            self.create_net_rou_poly_files()
 
         '''
         等效于
@@ -483,9 +489,9 @@ class SumoSimulation(object):
         '''
         if not self.gui:  # 创建一个新线程执行sumo cmd或者sumo gui
             self.process = subprocess.Popen([self.sm,
-                                             '-n=sumodata/tj.net.xml',
-                                             '-r=sumodata/tj.rou.xml',
-                                             '-a=sumodata/tj.poly.xml',
+                                             '-n=' + self.net_file,
+                                             '-r=' + self.rou_file,
+                                             '-a=' + self.poly_file,
                                              '-X=never',
                                              '--seed=' + str(self.seed),
                                              '--junction-taz',
@@ -507,9 +513,9 @@ class SumoSimulation(object):
             #           '--remote-port='+str(self.port),
             #           '--tripinfo-output=results/tripinfo.xml'])
             self.process = subprocess.Popen([self.smg,
-                                             '-n=sumodata/tj.net.xml',
-                                             '-r=sumodata/tj.rou.xml',
-                                             '-a=sumodata/tj.poly.xml',
+                                             '-n=' + self.net_file,
+                                             '-r=' + self.rou_file,
+                                             '-a=' + self.poly_file,
                                              '-X=never',
                                              '--seed=' + str(self.seed),
                                              '--junction-taz',
@@ -594,12 +600,10 @@ class SumoSimulation(object):
         # print('Creating routes')
         _, borders = self.get_junction()
         self.__create_vehicles_route_file(borders)  # 创建路线
-        self._traci.close()  # 关闭连接
         # print('Routes created')
 
     def __create_vehicles_route_file(self, borders):
-        with open('sumodata/veh_routes_' + str(self.nrows) + '_' +
-                  str(self.ncols) + '.xml', 'w') as r:  # 打开路线文件
+        with open(self.rou_file, 'w') as r:  # 打开路线文件
             r.write('<routes>\n')  # 起始标记
             '''
             vType部分

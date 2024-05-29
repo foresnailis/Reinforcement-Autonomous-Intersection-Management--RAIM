@@ -30,8 +30,8 @@ Just run the _main_1_1_v2.py_ file
 # TD3 默认开启课程学习、策略噪声, 关闭跟驰与变道模型
 python main_1_1_v2.py --model_name=TD3-CL
 
-# TD3 关闭课程学习、策略噪声, 关闭跟驰与变道模型
-python main_1_1_v2.py --model_name=TD3 --class_learn=False --policy_noise=False
+# TD3 关闭课程学习、策略噪声, 关闭跟驰与变道模型, 限速15
+python main_1_1_v2.py --model_name=TD3 --class_learn=False --policy_noise=False --maxSpeed=15
 
 # TD3 关闭课程学习、策略噪声, 开启跟驰与变道模型
 python main_1_1_v2.py --model_name=TD3-CF --class_learn=False --policy_noise=False --cf=True

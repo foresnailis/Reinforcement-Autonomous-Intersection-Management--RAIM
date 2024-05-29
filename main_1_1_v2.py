@@ -89,6 +89,7 @@ parser.add_argument('--gui', type=bool, default=False, help='Whether to use SUMO
 parser.add_argument('--flow', type=int, default=150, help='Vehicle flow rate (vehicles per hour)')
 parser.add_argument('--model_name', type=str, default="Test", help='Name of the model to use')
 parser.add_argument('--epochs', type=int, default=200, help='Number of training epochs')
+parser.add_argument('--maxSpeed', type=int, default=30, help='Max speed')
 args = parser.parse_args()
 
 if args.gui:
@@ -125,6 +126,7 @@ try:
         simulacion.seed = int(epoch/change_seed_every) # 基于当前轮次的索引更新了随机种子，以改变随机性
         simulacion.change_algorithm(Fixed) # 设置控制算法
         simulacion.change_scenario(escenario) # 设置交通场景
+        simulacion.change_maxSpeed(args.maxSpeed)
         # simulacion.flow = flow
         # 根据智能体的记忆是否已满来调整仿真环境中的流量参数。如果记忆已满，
         # 则使用预定义的流量值；否则，随机选择一个流量值。

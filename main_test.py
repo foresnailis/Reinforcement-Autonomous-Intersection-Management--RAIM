@@ -102,7 +102,9 @@ simulation.change_scenario(escenario) # 设置交通场景
 model_list = [
     'DDPG-CL',
     'TD3-CL',
-    'TD3-PER',
+    'TD3-CL-15',
+    'TD3',
+    'TD3-cf',
     'Krauss',
     'rule_base'
 ]
@@ -136,10 +138,17 @@ for model_name in model_list:
             if 'DDPG' in model_name:
                 simulation.change_agent('DDPG')
             elif 'TD3' in model_name:
-                if model_name == 'TD3-PER':
-                    simulation.change_maxSpeed(13.39)
+                if model_name == 'TD3-cf':
+                    weight_path = os.path.join('ckpt', 'TD3', '150_best')
+                    simulation.change_maxSpeed(15)
                     simulation.change_agent('TD3', cf=True)
-                else:
+                elif model_name == 'TD3':
+                    simulation.change_maxSpeed(15)
+                    simulation.change_agent('TD3')
+                elif model_name == 'TD3-CL-15':
+                    simulation.change_maxSpeed(15)
+                    simulation.change_agent('TD3')
+                elif model_name == 'TD3-CL':
                     simulation.change_agent('TD3')
             
             c = simulation.run_test_simulation(weight_path=weight_path, is_agent=True)

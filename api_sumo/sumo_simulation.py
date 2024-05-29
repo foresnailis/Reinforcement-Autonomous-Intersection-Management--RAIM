@@ -2,7 +2,7 @@
 """
 
 """
-
+import os
 import subprocess
 import sys
 import platform
@@ -127,11 +127,10 @@ class SumoSimulation(object):
         
         self.map = map
 
-        self.map_file = 'sumodata/tj.osm'
-        self.poly_file = 'sumodata/tj.poly.xml'
+        self.map_file = os.path.join('sumodata', self.map+'.osm')
+        self.poly_file = os.path.join('sumodata', self.map+'.poly.xml')
 
         if self.map != 'Default':
-            import os
             self.net_file = os.path.join('sumodata', self.map+'.net.xml')
             self.rou_file = os.path.join('sumodata', self.map+'.rou.xml')
         else:
@@ -543,8 +542,7 @@ class SumoSimulation(object):
                                     '--junctions.join', 'true', 
                                     '--junctions.join-dist', '50', 
                                     '-o', self.net_file,
-                                    '--keep-edges.by-type', 
-                                    'highway.primary'], check=True, stdout=subprocess.PIPE, universal_newlines=True)
+                                    '--tls.discard-loaded', 'true'], check=True, stdout=subprocess.PIPE, universal_newlines=True)
         print(result_nc.stdout)  # 输出运行结果
 
         # 根据osm和路网生成poly文件

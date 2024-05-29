@@ -75,7 +75,7 @@ parser.add_argument('--agent', type=str, default='TD3', help='TD3 or DDPG')
 parser.add_argument('--policy_noise', type=bool, default=True, help='POLICY NOISE')
 parser.add_argument('--class_learn', type=bool, default=True, help='Class Learning')
 parser.add_argument('--cf', type=bool, default=False, help='Car Following and lane change.')
-parser.add_argument('--gui', type=bool, default=False, help='Whether to use SUMO GUI')
+parser.add_argument('--gui', type=bool, default=True, help='Whether to use SUMO GUI')
 parser.add_argument('--flow', type=int, default=150, help='Vehicle flow rate (vehicles per hour)')
 parser.add_argument('--model_name', type=str, default="Test", help='Name of the model to use')
 parser.add_argument('--epochs', type=int, default=200, help='Number of training epochs')
@@ -94,23 +94,23 @@ simulation = SumoSimulation(red_manhattan, gui=args.gui, lanes=args.nlanes,
                             nrows=args.nrows, ncols=args.ncols, leng=args.length,
                             seed=args.seed, flow=args.flow,
                             policy_noise=args.policy_noise, cf= args.cf, model_name=args.model_name, agent=args.agent,
-                            map = 'Default')
+                            map = 'tj')
 simulation.seed = SEED
 simulation.change_algorithm(Fixed) # 设置控制算法
 simulation.change_scenario(escenario) # 设置交通场景
 
 model_list = [
-    'DDPG-CL',
+    # 'DDPG-CL',
     'TD3-CL',
-    'TD3-CL-15',
-    'TD3',
-    'TD3-cf',
-    'Krauss',
-    'rule_base'
+    # 'TD3-CL-15',
+    # 'TD3',
+    # 'TD3-cf',
+    # 'Krauss',
+    # 'rule_base'
 ]
 
-flow_list = [100, 125, 150, 175, 200, 250, 300, 350, 400]
-# flow_list = [150]
+# flow_list = [100, 125, 150, 175, 200, 250, 300, 350, 400]
+flow_list = [150]
 import seaborn as sns
 import requests
 import pandas as pd

@@ -270,7 +270,8 @@ class SumoSimulation(object):
 
         states.append(self.im.first_state())  # 状态更新，拿到当前交叉口车辆所有状态
         if self.tl == False:
-            self.im.control_tls()  # 更改信号灯
+            if self.map=='Default':
+                self.im.control_tls()  # 更改信号灯
         self.im.reset_values()  # 重置值
         self.im.score = 0  # 初始化分数
 

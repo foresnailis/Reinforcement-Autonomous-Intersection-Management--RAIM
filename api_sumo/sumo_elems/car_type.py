@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 定义车辆类型的属性和行为
 属性列表：
@@ -31,10 +30,6 @@ probability: 车辆生成概率，可能用于控制某些特定车辆类型的�
 """
 
 from elem import Elem
-
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
 
 class CarType(Elem):
     def __init__(self,_id,\

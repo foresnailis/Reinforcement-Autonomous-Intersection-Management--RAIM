@@ -1,14 +1,5 @@
-#!/usr/bin/env python
-"""
-
-"""
-
 from api_sumo import SumoScenario,CarType,Vehicle,Flow,Route
 from random import randint
-
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
 
 """
 返回值：生成车辆行进路径的边集合
@@ -46,11 +37,10 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 # 车辆位于车道最右侧，先变道再直行
                 # 否则先直行再变道
                 if i1 == 0 or i1 == rows-1: 
-                    s.expand(getRoute(i1,j1,i2,j1,nrows,ncols).expand(getRoute(i2,j1,i2,j2,nrows,ncols)))   # 找不到getRoute函数
+                    s.expand(getRoute(i1,j1,i2,j1,nrows,ncols).expand(getRoute(i2,j1,i2,j2,nrows,ncols)))
                 else:
                     s.expand(getRoute(i1,j1,i1,j2,nrows,ncols).expand(getRoute(i1,j2,i2,j2,nrows,ncols)))
         else:
-            # Primero comenzaremos con NW y SE
             # 南北走向来车，右转
             # 先直走，再直角转弯，直走
             if i1 == 0 or i1 == rows-1:
@@ -59,18 +49,15 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 prev_i = i1
                 prev_j = j1
 
-                # Avance recto hasta el brazo arm
                 for i in range(i1,i2,d):
                     s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
     #                print(prev_i,prev_j,prev_i+d,prev_j)
                     prev_i += d
-                # Ahora toca girar
                 for i in range(j1,j2,-d):
                     s.append(edgef(prev_i,prev_j,prev_i,prev_j-d))
     #                print(prev_i,prev_j,prev_i,prev_j-d)
                     prev_j -= d
 
-            # Ahora con WS y EN
             # 东西走向来车，右转
             # 先直走，再直角转弯，直走
             elif j1 == 0 or j1 == cols-1:
@@ -79,23 +66,18 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 prev_i = i1
                 prev_j = j1
 
-                # Primero avanzamos
                 for i in range(j1,j2,d):
                     s.append(edgef(prev_i,prev_j,prev_i,prev_j+d))
     #                print(prev_i,prev_j,prev_i,prev_j+d)
                     prev_j += d
 
-                # Ahora toca girar
                 for i in range(i1,i2,d):
                     s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
     #                print(prev_i,prev_j,prev_i+d,prev_j)
                     prev_i += d
     else: # 行人模式
-        # Turno de los peatones
-        # Peatones con movimiento recto
         if straight == True:
 
-            #Rutas WE y EW
             # 东西走向
             if i1==i2:
                 d = 1 if j1 == 0 else -1
@@ -110,8 +92,6 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 w = 1 if d == -1 else 3
                 prev_i = i1
                 prev_j = j1
-
-                # Avance recto
                 for i in range(j1,j2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i,prev_j+d))
                     s.append(edgef_ped_w(prev_i,prev_j+d,w))
@@ -120,7 +100,6 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                     prev_j += d
                 s.append(edgef(prev_i,prev_j,prev_i,prev_j+d))
 
-            #Rutas NS y SN
             # 南北走向
             else:
                 d = 1 if i1 == 0 else -1
@@ -128,17 +107,13 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 w1 = 3 if d == 1 else 1
                 prev_i = i1
                 prev_j = j1
-
-                # Avance recto
                 for i in range(i1,i2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w0))
                     s.append(edgef_ped_c(prev_i+d,prev_j,w1))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w1))
                     prev_i += d
-                # Ahora toca girar
                 s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
-        # Peatones con giros a la derecha
         else: # 拐弯
             # NW
             if i1 == 0 and j2 == 0:
@@ -148,14 +123,13 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 prev_i = i1
                 prev_j = j1
 
-                # Giro y Avance recto
                 for i in range(i1,i2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w0))
                     s.append(edgef_ped_c(prev_i+d,prev_j,w1))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w1))
                     prev_i += d
-                # Ahora toca girar
+
                 s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
                 s.append(edgef_ped_w(prev_i+d,prev_j,w0))
 
@@ -164,7 +138,6 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 d = -1
                 w = 1
 
-                # Primero avanzamos
                 for i in range(j1,j2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i,prev_j+d))
                     s.append(edgef_ped_w(prev_i,prev_j+d,w))
@@ -181,14 +154,12 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 prev_i = i1
                 prev_j = j1
 
-                # Giro y Avance recto
                 for i in range(i1,i2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w0))
                     s.append(edgef_ped_c(prev_i+d,prev_j,w1))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w1))
                     prev_i += d
-                # Ahora toca girar
                 s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
                 s.append(edgef_ped_w(prev_i+d,prev_j,w0))
 
@@ -197,7 +168,6 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 d = 1
                 w = 3
 
-                # Primero avanzamos
                 for i in range(j1,j2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i,prev_j+d))
                     s.append(edgef_ped_w(prev_i,prev_j+d,w))
@@ -213,7 +183,6 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 prev_i = i1
                 prev_j = j1
 
-                # Primero avanzamos
                 for i in range(j1,j2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i,prev_j+d))
                     s.append(edgef_ped_w(prev_i,prev_j+d,w))
@@ -229,14 +198,13 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 w0 = 0
                 w1 = 3
 
-                # Giro y Avance recto
                 for i in range(i1,i2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w0))
                     s.append(edgef_ped_c(prev_i+d,prev_j,w1))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w1))
                     prev_i += d
-                # Ahora toca girar
+
                 s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
 
             # EN
@@ -246,7 +214,7 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 prev_i = i1
                 prev_j = j1
 
-                # Primero avanzamos
+
                 for i in range(j1,j2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i,prev_j+d))
                     s.append(edgef_ped_w(prev_i,prev_j+d,w))
@@ -262,14 +230,13 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 w0 = 2
                 w1 = 1
 
-                # Giro y Avance recto
                 for i in range(i1,i2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w0))
                     s.append(edgef_ped_c(prev_i+d,prev_j,w1))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w1))
                     prev_i += d
-                # Ahora toca girar
+
                 s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
 
             # NE
@@ -280,7 +247,6 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 prev_i = i1
                 prev_j = j1
 
-                # Giro y Avance recto
                 for i in range(i1,i2-1,d):
                     s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w0))
@@ -296,7 +262,6 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 d = 1
                 w = 3
 
-                # Primero avanzamos
                 for i in range(j1,j2,d):
                     s.append(edgef_ped_w(prev_i,prev_j,w))
                     s.append(edgef_ped_c(prev_i,prev_j,w-1))
@@ -312,14 +277,14 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 prev_i = i1
                 prev_j = j1
 
-                # Giro y Avance recto
+
                 for i in range(i1,i2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w0))
                     s.append(edgef_ped_c(prev_i+d,prev_j,w1))
                     s.append(edgef_ped_w(prev_i+d,prev_j,w1))
                     prev_i += d
-                # Ahora toca girar
+
                 s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
                 s.append(edgef_ped_w(prev_i+d,prev_j,w0))
                 s.append(edgef_ped_c(prev_i+d,prev_j,w1))
@@ -329,7 +294,6 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 d = -1
                 w = 1
 
-                # Primero avanzamos
                 for i in range(j1,j2,d):
                     s.append(edgef_ped_w(prev_i,prev_j,w))
                     s.append(edgef_ped_c(prev_i,prev_j,w-1))
@@ -344,7 +308,6 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 prev_i = i1
                 prev_j = j1
 
-                # Primero avanzamos
                 for i in range(j1,j2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i,prev_j+d))
                     s.append(edgef_ped_w(prev_i,prev_j+d,w))
@@ -361,7 +324,6 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 w0 = 2
                 w1 = 1
 
-                # Giro y Avance recto
                 for i in range(i1,i2,d):
                     s.append(edgef_ped_w(prev_i,prev_j,w0))
                     s.append(edgef_ped_c(prev_i,prev_j,w1))
@@ -376,7 +338,6 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 prev_i = i1
                 prev_j = j1
 
-                # Primero avanzamos
                 for i in range(j1,j2-d,d):
                     s.append(edgef(prev_i,prev_j,prev_i,prev_j+d))
                     s.append(edgef_ped_w(prev_i,prev_j+d,w))
@@ -393,13 +354,11 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
                 w0 = 0
                 w1 = 3
 
-                # Giro y Avance recto
                 for i in range(i1,i2,d):
                     s.append(edgef_ped_w(prev_i,prev_j,w0))
                     s.append(edgef_ped_c(prev_i,prev_j,w1))
                     s.append(edgef_ped_w(prev_i,prev_j,w1))
                     s.append(edgef(prev_i,prev_j,prev_i+d,prev_j))
                     prev_i += d
-#
 
     return ' '.join(s)

@@ -1,79 +1,38 @@
 # Reinforcement Autonomous Intersection Management - RAIM
-This is the repository of the code used for **RAIM** project
-
-Paper: "_RAIM: Reinforced Autonomous Intersection Management - AIM based on MADRL_"
-
-Conference: Real-World RL Workshop. 34th NeurIPS 2020 Conf
-
-[Link to paper](https://www.researchgate.net/publication/357957238_RAIM_Reinforced_Autonomous_Intersection_Management_-_AIM_based_on_MADRL)
-
-[Virtual Presentation](https://www.youtube.com/watch?v=hvf3lwQG8lI)
+This is the repository of the code used for **RAIM**, a course project
 
 ## Installation
-Take a look to requeriments.txt
 
-To install a requeriments.txt file:
-create a new virtual environment
-
+### SUMO install
 ```bash
-conda create -n RAIM python=3.8 anaconda
+bash install_sumo.sh
 ```
 
+### python env
 ```bash
+conda create -n RAIM python=3.8
 conda activate RAIM
-conda install --file requirements.txt
+pip install --f requirements.txt
 ```
 
 ## How to run
-Just run the _main_1_1_v2.py_ file
+Just run the main.py file
 ```bash
 # TD3 默认开启课程学习、策略噪声, 关闭跟驰与变道模型
-python main_1_1_v2.py --model_name=TD3-CL
+python main.py --model_name=TD3-CL
 
 # TD3 关闭课程学习、策略噪声, 关闭跟驰与变道模型, 限速15
-python main_1_1_v2.py --model_name=TD3 --class_learn=False --policy_noise=False --maxSpeed=15
+python main.py --model_name=TD3 --class_learn=False --policy_noise=False --maxSpeed=15
 
 # TD3 关闭课程学习、策略噪声, 开启跟驰与变道模型
-python main_1_1_v2.py --model_name=TD3-CF --class_learn=False --policy_noise=False --cf=True
+python main.py --model_name=TD3-CF --class_learn=False --policy_noise=False --cf=True
 
 # DDPG 默认开启课程学习, 关闭跟驰与变道模型
-python main_1_1_v2.py --model_name=DDPG-CL --agent=DDPG
+python main.py --model_name=DDPG-CL --agent=DDPG
 ```
 
-## How to change control algorithms
-By default is used the fixed traffic light algorithm with a green time defined by: `greentime=(120-10)//2`
-
-If you want to change by other traditional traffic lights algorithms, you need to instantiate in the previous lane.
-Like: `algorithm = REDVDAlgorithm(...)`
-Changing `Fixed` by `algorithm`
-
-If you want to use the proposed algorithm, you need to instantiate the module located in `TD3PER`
-`algorithm = TD3Agent.Agent(...)`
-
-## How it works
-In this repository there is the code to run the paper "_RAIM: Reinforced Autonomous Intersection Management - AIM based on MADRL_"
-
-In this paper, I make use of Deep Reinforcement Learning to train a new Autonomous Intersection Management (AIM) system.
-
-### What is an Autonomous Intersection Management (AIM) systems
-AIM is a decentralyzed system located virtually in the mobile communication system that control connected autonomous vehicles at urban intersections.
-
-![Traditional AIM](https://github.com/AntonioAlgaida/Reinforcement-Autonomous-Intersection-Management--RAIM/blob/main/figures/traditional%20AIM.svg "Traditional AIM")
-Traditional AIM
-
-### What is Reinforced AIM
-Reinforced AIM, or RAIM, is an advanced technique that makes use Deep Reinforcement Learning to determine for each vehicle within an intersection or in the approaches, the speed at which it must travel during the next time interval in order to avoid collisions and minimize travel time. 
-
-RAIM makes use of Twin Delayed Deep Deterministic Policy Gradients (TD3), PER (Prioritized Experience Replay), and Curriculum-based learning through Self-Play.
-
-![RAIM](https://github.com/AntonioAlgaida/Reinforcement-Autonomous-Intersection-Management--RAIM/blob/main/figures/NeuralNetwork_and_agents.svg "RAIM")
-RAIM actor
-
-
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+## How to test
+Prepare pth file in /ckpt/TD3 or others before excuting the test.
+```
+python main_test.py
+```

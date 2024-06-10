@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 有向边
 属性列表：
@@ -7,10 +6,6 @@ to 终点对象id
 """
 
 from elem import Elem
-
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
 
 class Edge(Elem):
     def __init__(self,_id,frm,to):

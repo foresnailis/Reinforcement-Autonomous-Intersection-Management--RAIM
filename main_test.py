@@ -20,15 +20,10 @@ if 'SUMO_HOME' in os.environ:
 else:
     sys.path.append("/usr/share/sumo/bin") # Para linux
     sys.path.append("/usr/share/sumo/tools") # Para linux
-    #sys.exit("please declare environment variable 'SUMO_HOME'")
 
 from sumolib import checkBinary  # noqa
 import traci  # noqa
 
-# sys.path.append("/usr/share/sumo/bin") # Para linux
-# sys.path.append("/usr/share/sumo/tools") # Para linux
-
-#%
 pltf = platform.system()
 if pltf == "Windows":
     print("Your system is Windows")
@@ -39,7 +34,7 @@ else:
     print("Your system is Linux")
     netgenBinary = checkBinary('netgenerate')
     sumoBinary = checkBinary('sumo-gui')
-#%
+
 with open('proj-root.txt', 'r') as file:
     root = file.read().strip()
 
@@ -51,12 +46,12 @@ sys.path.append(f"{root}/api_sumo/sumo_elems")
 sys.path.append(f"{root}/graphs")
 sys.path.append(f"{root}/scenarios")
 
-from algorithms import *  # noqa
-from api_sumo import *  # noqa
-from graphs import *  # noqa
-from scenarios import *  # noqa
+from algorithms import *
+from api_sumo import *
+from graphs import *
+from scenarios import *
 
-# % 设置种子可以确保每次运行代码时得到相同的随机数序列，从而使实验可重现
+# 设置种子可以确保每次运行代码时得到相同的随机数序列，从而使实验可重现
 SEED = 2024
 
 torch.manual_seed(SEED)
@@ -109,8 +104,8 @@ model_list = [
     # 'rule_base'
 ]
 
-# flow_list = [100, 125, 150, 175, 200, 250, 300, 350, 400]
-flow_list = [150]
+flow_list = [100, 125, 150, 175, 200, 250, 300, 350, 400]
+
 import seaborn as sns
 import requests
 import pandas as pd

@@ -1,13 +1,4 @@
-#!/usr/bin/env python
-"""
-
-"""
-
 from scenario import AsymmetricVariableFlowsManhattan
-
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
 
 """
 通行7小时

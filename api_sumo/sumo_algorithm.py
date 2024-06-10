@@ -1,11 +1,3 @@
-#!/usr/bin/env python
-"""
-
-"""
-import numpy as np
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
 
 class SumoAlgorithm(object):
     """

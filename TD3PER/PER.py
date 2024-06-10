@@ -8,13 +8,6 @@ def is_power_of_2 (n):
 
 # A binary tree data structure where the parent’s value is the sum of its children
 class SumTree():
-    """
-    This SumTree code is modified version of the code from:
-    https://github.com/jaara/AI-blog/blob/master/SumTree.py
-    https://github.com/simoninithomas/Deep_reinforcement_learning_Course/blob/master/Dueling%20Double%20DQN%20with%20PER%20and%20fixed-q%20targets/Dueling%20Deep%20Q%20Learning%20with%20Doom%20(%2B%20double%20DQNs%20and%20Prioritized%20Experience%20Replay).ipynb
-    For explanations please see:
-    https://jaromiru.com/2016/11/07/lets-make-a-dqn-double-learning-and-prioritized-experience-replay/
-    """
     data_pointer = 0
     data_length = 0
 

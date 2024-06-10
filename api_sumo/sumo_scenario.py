@@ -1,13 +1,4 @@
-#!/usr/bin/env python
-"""
-
-"""
-
 from sumo_elems import CarType,Vehicle,Flow,Route
-
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
 
 class SumoScenario(object):
     def __init__(self):

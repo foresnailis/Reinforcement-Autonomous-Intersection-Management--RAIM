@@ -41,9 +41,7 @@ actor_weights_file = 'weights_actor.pt'
 critic1_weights_file = 'weights_critic1.pt'
 critic2_weights_file = 'weights_critic2.pt'
 
-device = torch.device("cuda:0")
-# device = torch.device('cpu')
-
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Agent():
     """Interacts with and learns from the environment."""
@@ -90,8 +88,6 @@ class Agent():
 
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory."""
-        # Set reward as initial priority, see:
-        #   https://jaromiru.com/2016/11/07/lets-make-a-dqn-double-learning-and-prioritized-experience-replay/
         self.memory.add((state, action, reward, next_state, done), reward)
 
     def select_action(self, state):
@@ -101,7 +97,7 @@ class Agent():
         with torch.no_grad():
             action = self.actor_local(state.view(1, -1)).cpu().data.numpy()
         self.actor_local.train()
-        # action += self.noise.sample() 探索噪声
+        action += self.noise.sample() # 探索噪声
         return np.clip(action, -1., 1.)
 
     def reset(self):

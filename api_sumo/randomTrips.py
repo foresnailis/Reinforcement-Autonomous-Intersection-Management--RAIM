@@ -1,24 +1,5 @@
-#!/usr/bin/env python
-# Eclipse SUMO, Simulation of Urban MObility; see https://eclipse.org/sumo
-# Copyright (C) 2010-2020 German Aerospace Center (DLR) and others.
-# This program and the accompanying materials are made available under the
-# terms of the Eclipse Public License 2.0 which is available at
-# https://www.eclipse.org/legal/epl-2.0/
-# This Source Code may also be made available under the following Secondary
-# Licenses when the conditions for such availability set forth in the Eclipse
-# Public License 2.0 are satisfied: GNU General Public License, version 2
-# or later which is available at
-# https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html
-# SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-or-later
-
-# @file    randomTrips.py
-# @author  Daniel Krajzewicz
-# @author  Jakob Erdmann
-# @author  Michael Behrisch
-# @date    2010-03-06
-
 '''
-这段代码不是论文团队写的，是sumo官方提供的支持，可能经过了二次开发。
+sumo官方提供的路网生成代码
 '''
 from __future__ import print_function
 from __future__ import absolute_import

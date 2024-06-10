@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 """
 具体车辆
 属性列表：
@@ -22,9 +22,7 @@ arrivalPosLat: （可选）车辆到达的纬度位置。
 
 from elem import Elem
 
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
+
 
 class Vehicle(Elem):
     def __init__(self,_id,\

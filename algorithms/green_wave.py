@@ -1,15 +1,10 @@
-#!/usr/bin/env python
-"""
 
-"""
 
 from random import uniform
 
 from manhattan_algorithm import ManhattanAlgorithm
 
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
+
 
 class GreenWaveAlgorithm(ManhattanAlgorithm):
     def __init__(self,greentime,deltatime,nogreenstages=10,wq=0.5,lanes=1):

@@ -5,9 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 ##### HYPERPARAMETERS #####
-# Number of units in the first hidden layer
 fc1_units = 1024
-# Number of units in the second hidden layer
 fc2_units = 512
 fc3_units = 64
 
@@ -28,9 +26,7 @@ class Actor(nn.Module):
             action_size (int): Dimension of each action
         """
         super(Actor, self).__init__()
-        #self.bn1 = nn.BatchNorm1d(state_size)
         self.fc1 = nn.Linear(state_size, fc1_units)
-        # self.bn2 = nn.BatchNorm1d(fc1_units)
         self.fc2 = nn.Linear(fc1_units, fc2_units)
         self.fc3 = nn.Linear(fc2_units, fc3_units)
         self.fc4 = nn.Linear(fc3_units, action_size)
@@ -41,16 +37,10 @@ class Actor(nn.Module):
         self.fc1.weight.data.uniform_(*hidden_init(self.fc1))
         self.fc2.weight.data.uniform_(*hidden_init(self.fc2))
         self.fc3.weight.data.uniform_(*hidden_init(self.fc3))
-
-        # nn.init.xavier_uniform_(self.fc1.weight, gain=nn.init.calculate_gain('relu'))
-        # nn.init.xavier_uniform_(self.fc2.weight, gain=nn.init.calculate_gain('relu'))
-        #nn.init.kaiming_uniform_(self.fc1.weight, mode='fan_in', nonlinearity='relu')
-        #nn.init.kaiming_uniform_(self.fc2.weight, mode='fan_in', nonlinearity='relu')
         self.fc4.weight.data.uniform_(-3e-3, 3e-3)
 
     def forward(self, x):
         """Build an actor (policy) network that maps states -> actions."""
-        #x = self.bn1(x)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
@@ -69,9 +59,7 @@ class Critic(nn.Module):
             action_size (int): Dimension of each action
         """
         super(Critic, self).__init__()
-        #self.bn1 = nn.BatchNorm1d(state_size)
         self.fc1 = nn.Linear(state_size, fc1_units)
-        # self.bn2 = nn.BatchNorm1d(fc1_units)
         self.fc2 = nn.Linear(fc1_units+action_size, fc2_units)
         self.fc3 = nn.Linear(fc2_units, fc3_units)
         self.fc4 = nn.Linear(fc3_units, 1)
@@ -82,16 +70,10 @@ class Critic(nn.Module):
         self.fc1.weight.data.uniform_(*hidden_init(self.fc1))
         self.fc2.weight.data.uniform_(*hidden_init(self.fc2))
         self.fc3.weight.data.uniform_(*hidden_init(self.fc3))
-
-        # nn.init.xavier_uniform_(self.fc1.weight, gain=nn.init.calculate_gain('relu'))
-        # nn.init.xavier_uniform_(self.fc2.weight, gain=nn.init.calculate_gain('relu'))
-        #nn.init.kaiming_uniform_(self.fc1.weight, mode='fan_in', nonlinearity='relu')
-        #nn.init.kaiming_uniform_(self.fc2.weight, mode='fan_in', nonlinearity='relu')
         self.fc4.weight.data.uniform_(-3e-3, 3e-3)
 
     def forward(self, x, action):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
-        #x = self.bn1(x)
         x = F.relu(self.fc1(x))
         x = torch.cat((x, action), dim=1)
         x = F.relu(self.fc2(x))

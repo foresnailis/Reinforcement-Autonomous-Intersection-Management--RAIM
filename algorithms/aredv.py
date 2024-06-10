@@ -1,15 +1,10 @@
-#!/usr/bin/env python
-"""
 
-"""
 
 from random import uniform
 
 from manhattan_algorithm import ManhattanAlgorithm
 
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
+
 
 class AREDVAlgorithm(ManhattanAlgorithm):
     def __init__(self,cycle,min_green_time,min_red_time,minth,maxth,delta,\

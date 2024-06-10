@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 """
 点
 除了属性列表外，额外维护一个字典connections，key为其他点的id，value为距离
@@ -9,9 +9,7 @@ type traffic_light或None
 from math import sqrt
 from elem import Elem
 
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
+
 
 class Node(Elem):
     def __init__(self,_id,x,y,typ=0):

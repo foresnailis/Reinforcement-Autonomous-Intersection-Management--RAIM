@@ -1,7 +1,3 @@
-'''
-每个根目录下都有的头文件，方便引用
-'''
-
 from sumo_elems.node import Node
 from sumo_elems.edge import Edge
 from sumo_elems.car_type import CarType

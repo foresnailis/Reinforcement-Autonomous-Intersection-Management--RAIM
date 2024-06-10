@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jun 10 16:49:54 2020
-
-@author: anton
-"""
-
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -28,15 +21,10 @@ if 'SUMO_HOME' in os.environ:
 else:
     sys.path.append("/usr/share/sumo/bin") # Para linux
     sys.path.append("/usr/share/sumo/tools") # Para linux
-    #sys.exit("please declare environment variable 'SUMO_HOME'")
 
-from sumolib import checkBinary  # noqa
-import traci  # noqa
+from sumolib import checkBinary
+import traci
 
-# sys.path.append("/usr/share/sumo/bin") # Para linux
-# sys.path.append("/usr/share/sumo/tools") # Para linux
-
-#%
 pltf = platform.system()
 if pltf == "Windows":
     print("Your system is Windows")
@@ -50,7 +38,6 @@ else:
 
 with open('proj-root.txt', 'r') as file:
     root = file.read().strip()
-
 os.chdir(root)
 
 sys.path.append(f"{root}/algorithms")
@@ -178,7 +165,6 @@ try:
                 # 如果历史记录数据量超过1000条，即已经收集了一定量的数据，也可以增加流量。
                 if args.class_learn:
                     if len(a) > 250:
-                        # if np.mean(a[:,7][-1000:]) < 0.5:
                         if np.var(a[:,7][-250:]) < 0.005*flow or len(a) > 1000:
                             flow += 25
                             simulacion.flow = flow
@@ -191,7 +177,6 @@ try:
                 if best_collisions >= np.sum(c) and best_timeloss >= ti[7]:
                     best_timeloss = ti[7]
                     best_collisions = np.sum(c)
-                    # simulacion.im.agent.save_checkpoint(str(flow) + '_best')
                     save_dir = os.path.join(model_weight_path, str(flow) + '_best')
                     os.makedirs(save_dir, exist_ok=True)
                     simulacion.im.agent.save_weights(save_dir)

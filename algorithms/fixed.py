@@ -1,9 +1,7 @@
 
 from manhattan_algorithm import ManhattanAlgorithm
 
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
+
 
 # 继承自 ManhattanAlgorithm 类
 class FixedAlgorithm(ManhattanAlgorithm): 

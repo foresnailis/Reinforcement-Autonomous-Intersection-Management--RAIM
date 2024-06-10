@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 sumo_graph.py
 构建SumoGraph基类，使用sumo_elems中的边和节点，定义了一些待实现或已实现的方法。总的来说，是一个管理模拟环境中图设计的类。
@@ -18,18 +17,12 @@ iter_edges: 得到一个迭代器，遍历所有边的值
 """
 from sumo_elems import Edge,Node
 
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
-
 class SumoGraph(object):
     def __init__(self):
         self.node_list = dict()
         self.edge_list = dict()
     
     def add_node(self,n):
-#        if type(n) != Node:
-#            raise TypeError('Arguments must be a node.')
         self.node_list[n.id] = n
     
     def get_node(self,id):
@@ -45,8 +38,6 @@ class SumoGraph(object):
         return iter(self.edge_list.values())
     
     def add_edge(self,e):
-#        if type(e) != Edge:
-#            raise TypeError('Arguments must be a edge.')
         if not (e['from'] in self.node_list and e.to in self.node_list):
             raise ReferenceError('Edge nodes must be in the graph before.')
         self.edge_list[e.id] = e

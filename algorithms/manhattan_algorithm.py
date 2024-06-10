@@ -1,15 +1,10 @@
-#!/usr/bin/env python
-"""
 
-"""
 
 from collections import defaultdict
 
 from api_sumo import SumoAlgorithm
 
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
+
 
 class ManhattanAlgorithm(SumoAlgorithm):
     """

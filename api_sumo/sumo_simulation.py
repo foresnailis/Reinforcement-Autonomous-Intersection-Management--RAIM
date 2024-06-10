@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-"""
-
-"""
 import os
 import subprocess
 import sys
@@ -16,13 +12,9 @@ import traci
 import traci.constants as tc
 
 from IntersectionManager import IntersectionManager
-from sumolib import checkBinary  # noqa
+from sumolib import checkBinary
 from collections import defaultdict, namedtuple
 from xml.dom import minidom
-
-__author__ = "Bryan Alexis Freire Viteri. Mod by Antonio Guillen Perez"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com antonio.guillen@edu.upct.es"
 
 
 class SumoSimulation(object):
@@ -213,10 +205,8 @@ class SumoSimulation(object):
                 print(
                     f'Simulation: {self.i_ep}; Time: {self._traci.simulation.getTime()}')
 
-            # Select action based on state
             actions.append(self.im.select_actions())  # 根据状态选择动作，并添加到动作列表
 
-            # Perform actions based on state
             self.im.perform_actions()  # 执行动作
 
             # 这里是报车流碰撞Warning的地方
@@ -228,17 +218,14 @@ class SumoSimulation(object):
             r = self.im.obtain_reward()  # 更新奖励
             if r:  # 奖励非空，就扩展奖励列表
                 self.rewards.append([self._traci.simulation.getTime(), r])
-            # states.append(self.im.update_state())
             self.im.swap_states()  # 更新当前状态
 
-#            print(self._time)
             self._time = self._time + traci.simulation.getDeltaT()  # 更新时间
-            # a.append(self.obtain_loss_time())
 
             if self._traci.simulation.getTime() > 50000:  # 如果模拟时间过长，清除待处理事件
                 self._traci.simulation.clearPending()
 
-        # running_reward=-1000,为了尽可能快的让所有车通行
+        # running_reward=-1000是为了尽可能快的让所有车通行
         score = self.im.score  # 拿到分数
         self.running_reward = self.running_reward * 0.9 + score * 0.1  # 更新运行奖励
         self.training_records.append(TrainingRecord(
@@ -246,11 +233,7 @@ class SumoSimulation(object):
 
         try:
             if self.i_ep % 20 == 0:  # 每隔20步，保存权重
-                # self.im.agent.save_checkpoint(str(self.flow))
                 self.im.agent.save_weights(self.weight_path)
-
-            # with open('log/ppo_training_records.pkl', 'wb') as f:
-                # pickle.dump(self.training_records, f)
 
         except Exception as e:
             print("type error: " + str(e))
@@ -306,31 +289,20 @@ class SumoSimulation(object):
             junctionID = 'A0'
             dist = 200.0
 
-            # https://sumo.dlr.de/pydoc/traci.constants.html
             traci.junction.subscribeContext(junctionID, tc.CMD_GET_VEHICLE_VARIABLE, dist, [
                                             tc.VAR_SPEED, tc.VAR_ALLOWED_SPEED, tc.VAR_ROAD_ID, tc.VAR_DISTANCE])
-
-            # https://sumo.dlr.de/daily/pydoc/traci._vehicle.html
-            # traci.vehicle.subscribeContext(str(veh_id), tc.CMD_GET_VEHICLE_VARIABLE, 0.0, [tc.VAR_SPEED])
-            # traci.junction.addSubscriptionFilterLanes([-1,0,1], noOpposite=True, downstreamDist=100, upstreamDist=50)
-
-            # traci.vehicle.addSubscriptionFilterDownstreamDistance(50.0)
-            # traci.vehicle.addSubscriptionFilterLanes(lanes, noOpposite=True, downstreamDist=100, upstreamDist=50)
-
-            # Eliminar los vehículos que se alejan de la intersección, en función de su ruta?
 
             stepLength = traci.simulation.getDeltaT()
             scResults = traci.junction.getContextSubscriptionResults(
                 junctionID)
-            halting = 0
 
-            a = tc.VAR_SPEED  # Current speed
-            b = tc.VAR_ALLOWED_SPEED  # Maximum speed
+            a = tc.VAR_SPEED  # 当前速度
+            b = tc.VAR_ALLOWED_SPEED  # 最大限速
             timeLoss = 0
             print(f'\n Found {len(scResults)} vehicles before filtering')
             print(f'\t Keys: {scResults.keys()}')
 
-            # If vehicles are approaching the intersection
+            # 车辆接近十字路口
             scResults = self._remove_moving_away(junctionID, scResults)
 
             if scResults:
@@ -338,24 +310,15 @@ class SumoSimulation(object):
                 print(f'\t Keys: {scResults.keys()}')
                 print(f'{scResults}')
                 relSpeeds = [d[a] / d[b] for d in scResults.values()]
-                # compute values corresponding to summary-output
                 running = len(relSpeeds)
-                # number of vehicles waiting
-                halting = len([1 for d in scResults.values()
-                              if d[tc.VAR_SPEED] < 0.1])
                 meanSpeedRelative = np.mean(relSpeeds)
-                # Due to that the vehicles are under the maximum speed,
-                # the loss time in the last simulationStep is:
                 timeLoss = (1 - meanSpeedRelative) * running * stepLength
-
-            # print(f'Simulation time: {traci.simulation.getTime()}; Timeloss: {timeLoss}; Halting: {halting}')
             return timeLoss
         except Exception as e:
             print("type error: " + str(e))
             print("obtain_time_loss的错误："+traceback.format_exc())
 
     def _remove_moving_away(self, j, v):
-        # If vehicles are approaching the intersection
         return {key: val for key, val in v.items() if (val[tc.VAR_ROAD_ID][-2:] == j) or (val[tc.VAR_ROAD_ID][:1+len(j)] == f':{j}')}
 
 #
@@ -437,7 +400,6 @@ class SumoSimulation(object):
                     avg_relative_timeloss, avg_duration, avg_wtime,
                     avg_timeloss, max_timeloss, total_CO_abs / total_trips,
                     total_CO2_abs / total_trips, total_HC_abs / total_trips, total_PMx_abs / total_trips, total_NOx_abs / total_trips, total_fuel_abs / total_trips]
-        return self.co2em
 
     def reset_statistics(self):
         self._time = 0
@@ -452,35 +414,11 @@ class SumoSimulation(object):
         self.df = np.empty([0, 6])
         self.y = []
 
-    def _get_statistics(self):
-
-        for edge in self.sg.iter_edges():
-            #        if edge.id in self.co2em:
-            self.co2em[edge.id][0] += self._traci.edge.getCO2Emission(edge.id)
-#            self.co2em[edge.id][1] += self._traci.edge.getCOEmission(edge.id)
-#            self.co2em[edge.id][2] += self._traci.edge.getHCEmission(edge.id)
-#            self.co2em[edge.id][3] += self._traci.edge.getPMxEmission(edge.id)
-#            self.co2em[edge.id][4] += self._traci.edge.getNOxEmission(edge.id)
-#            self.co2em[edge.id][5] += self._traci.edge.getFuelConsumption(edge.id)
-#            self.co2em[edge.id][6] += self._traci.edge.getNoiseEmission(edge.id)
-
-#        else:
-#            self.co2em[edge.id] = self._traci.edge.getCO2Emission(edge.id)
-
-#        # Estados de los semáforos en cada instante
-#        tlsID = self._traci.trafficlight.getIDList()
-#        y_NS = self._traci.trafficlight.getRedYellowGreenState(tlsID[0])
-#        if y_NS[1] == 'G':
-#            self.y.append(1)
-#        else:
-#            self.y.append(0)
-
     def init_simulation(self):  # 初始化模拟
         if self.map == 'Default':
             self.create_route_files_v2()
         else:
             self.create_net_rou_poly_files()
-
         '''
         等效于
         >>sumo.exe -n=sumodata/net_......
@@ -505,14 +443,6 @@ class SumoSimulation(object):
                                              '--collision.check-junctions=true',
                                              '--collision.action=warn'] + (['-a=' + self.poly_file] if self.map != 'Default' else []))
         else:
-            # ' '.join([self.smg,
-            #           '-n=sumodata/net.xml',
-            #           '-r=sumodata/routes.xml',
-            # '-a=sumodata/peds_cycl_routes_'+str(self.nrows)+'_'+str(self.ncols)+'.xml, sumodata/induction_loops.add.xml',
-
-            #           '--random',
-            #           '--remote-port='+str(self.port),
-            #           '--tripinfo-output=results/tripinfo.xml'])
             self.process = subprocess.Popen([self.smg,
                                              '-n=' + self.net_file,
                                              '-r=' + self.rou_file,
@@ -596,10 +526,10 @@ class SumoSimulation(object):
         print(output)
 
     def create_route_files_v2(self):  # 车辆路线文件生成
-        # print('Creating routes')
+        print('Creating routes')
         _, borders = self.get_junction()
         self.__create_vehicles_route_file(borders)  # 创建路线
-        # print('Routes created')
+        print('Routes created')
 
     def __create_vehicles_route_file(self, borders):
         with open(self.rou_file, 'w') as r:  # 打开路线文件

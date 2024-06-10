@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 manhattan_graph.py
 构建ManhattenGraph类，基类是SumoGraph，完成了一个基于曼哈顿距离来定义的图类。
@@ -21,10 +20,6 @@ _create_graph(self): 私有方法，用于创建 ManhattanGraph 的节点和边�
 """
 
 from api_sumo import SumoGraph,Node,Edge
-
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
 
 class ManhattanGraph(SumoGraph):
     def __init__(self,rows=3,cols=3,length=100):

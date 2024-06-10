@@ -1,16 +1,8 @@
-#!/usr/bin/env python
-"""
-
-"""
 import pandas as pd
 import numpy as np
 from random import uniform
 
 from manhattan_algorithm import ManhattanAlgorithm
-
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
 
 class AREDVDAlgorithm(ManhattanAlgorithm):
     def __init__(self,minth,maxth,delta1,delta2,min_green_time,min_red_time,maxp,avgmode,\
@@ -44,7 +36,6 @@ class AREDVDAlgorithm(ManhattanAlgorithm):
        'maxp','maxp_ns','maxp_we','liminc','time',
        'limdec','alpha','beta','target_min','target_max','count','ocurs','cycles',
        'avg', 'pa','pb','greentime']
-#        self.history = pd.DataFrame(columns=columns)
         self.history = np.matrix(columns)
     def reset_algorithm(self,sm):
         super(AREDVDAlgorithm,self).reset_algorithm(sm)
@@ -64,8 +55,6 @@ class AREDVDAlgorithm(ManhattanAlgorithm):
 
 
     def _when_green(self,index,num):
-#        avg = self.avgmode((self.queues[index][0 if num == 0 else 2],\
-#                            self.queues[index][1 if num == 0 else 3]))
 
         index1 = 0 if num == 0 else 2
         index2 = 1 if num == 0 else 3
@@ -116,8 +105,6 @@ class AREDVDAlgorithm(ManhattanAlgorithm):
         elif uniform(0,1) < pa:
             gt += self.delta2
 
-#        # Si este tiempo en verde es mayor que el ciclo que tenemos
-            # No lo entiendo
 #        if gt > self.cycles[index] - self.min_red_time - 20:
 #            gt = self.cycles[index] - self.min_red_time - 20
 
@@ -130,9 +117,6 @@ class AREDVDAlgorithm(ManhattanAlgorithm):
             self.cycles[index] = self.mincycle
 
         self.lastgreentime[index][num] = gt
-        # Si el tiempo en verde para esta rama + la otra + los tiempos en rojo
-        # es mayor que el tiempo máximo de ciclo actual, podemos, o aumentar el ciclo,
-        # o en el caso de que si al aumentar se supere el maxcycle, se disminuye la rama contraria
 #        if gt + self.lastgreentime[index][1-num] + 20 > self.maxcycle:
         if gt + self.lastgreentime[index][1-num] + 20 > self.cycles[index]:
 #            self.cycles[index] += self.deltacycle
@@ -205,8 +189,6 @@ class AREDVDAlgorithm(ManhattanAlgorithm):
         elif uniform(0,1) < pa:
             gt += self.delta2
 
-#        # Si este tiempo en verde es mayor que el ciclo que tenemos
-            # No lo entiendo
 #        if gt > self.cycles[index] - self.min_red_time - 20:
 #            gt = self.cycles[index] - self.min_red_time - 20
 
@@ -219,9 +201,6 @@ class AREDVDAlgorithm(ManhattanAlgorithm):
             self.cycles[index] = self.mincycle
 
         self.lastgreentime[index][num] = gt
-        # Si el tiempo en verde para esta rama + la otra + los tiempos en rojo
-        # es mayor que el tiempo máximo de ciclo actual, podemos, o aumentar el ciclo,
-        # o en el caso de que si al aumentar se supere el maxcycle, se disminuye la rama contraria
 #        if gt + self.lastgreentime[index][1-num] + 20 > self.maxcycle:
         if gt + self.lastgreentime[index][1-num] + 20 > self.cycles[index]:
 #            self.cycles[index] += self.deltacycle

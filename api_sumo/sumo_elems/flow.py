@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 """
 交通流
 属性列表：
@@ -29,9 +29,7 @@ toJunction：交通流结束的交叉口。
 
 from elem import Elem
 
-__author__ = "Bryan Alexis Freire Viteri"
-__version__ = "3.0"
-__email__ = "bryanfv95@gmail.com"
+
 
 class Flow(Elem):
     def __init__(self,_id,\

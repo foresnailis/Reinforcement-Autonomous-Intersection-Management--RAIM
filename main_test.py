@@ -82,17 +82,17 @@ else:
     sumoBinary = checkBinary('sumo')
 
 red_manhattan = ManhattanGraph(3, 3, 300)
-escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
-Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=args.nlanes)
+# escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
+# Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=args.nlanes)
 
 simulation = SumoSimulation(red_manhattan, gui=args.gui, lanes=args.nlanes,
                             nrows=args.nrows, ncols=args.ncols, leng=args.length,
                             seed=args.seed, flow=args.flow,
                             policy_noise=args.policy_noise, cf= args.cf, model_name=args.model_name, agent=args.agent,
-                            map = 'tj')
+                            map = 'at')
 simulation.seed = SEED
-simulation.change_algorithm(Fixed) # 设置控制算法
-simulation.change_scenario(escenario) # 设置交通场景
+# simulation.change_algorithm(Fixed) # 设置控制算法
+# simulation.change_scenario(escenario) # 设置交通场景
 
 model_list = [
     # 'DDPG-CL',
@@ -104,8 +104,8 @@ model_list = [
     # 'rule_base'
 ]
 
-flow_list = [100, 125, 150, 175, 200, 250, 300, 350, 400]
-
+# flow_list = [100, 125, 150, 175, 200, 250, 300, 350, 400]
+flow_list = [150]
 import seaborn as sns
 import requests
 import pandas as pd

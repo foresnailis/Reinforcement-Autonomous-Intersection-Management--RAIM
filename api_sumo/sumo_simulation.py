@@ -473,6 +473,7 @@ class SumoSimulation(object):
                                     '--junctions.join', 'true', 
                                     '--junctions.join-dist', '50', 
                                     '-o', self.net_file,
+                                    '--keep-edges.by-type', 'highway.primary,highway.primary_link,highway.secondary,highway.secondary_link,highway.tertiary,highway.tertiary_link',
                                     '--tls.discard-loaded', 'true'], check=True, stdout=subprocess.PIPE, universal_newlines=True)
         print(result_nc.stdout)  # 输出运行结果
 

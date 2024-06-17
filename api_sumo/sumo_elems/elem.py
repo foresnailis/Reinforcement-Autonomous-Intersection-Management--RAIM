@@ -7,11 +7,8 @@ Basic object type to represent a sumo object in python.
 
 class Elem(object):
     def __init__(self,name,_id,d={},**args):
-        # Name of the subclass
         super(Elem,self).__setattr__('name',name)
-        # Id of any object
         super(Elem,self).__setattr__('id',_id)
-        # Basic attribute container of any object
         super(Elem,self).__setattr__('attr',d)
         
     def __set_attr__(self,k,v):

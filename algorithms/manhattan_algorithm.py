@@ -49,9 +49,6 @@ class ManhattanAlgorithm(SumoAlgorithm):
 
     
 
-#        Se repiten el estado de clear dos veces ya que se dan dos segundos para
-#        que se limpie la intersección
-
 #        program   = [WEGREEN,WEYELLOW, WEYELLOW, WEYELLOW,CLEAR,CLEAR, NSGREEN, NSYELLOW, NSYELLOW, NSYELLOW,CLEAR,CLEAR]
         program = [WEGREEN,
                    WEYELLOW,

@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-##### HYPERPARAMETERS #####
 fc1_units = 1024
 fc2_units = 512
 fc3_units = 64

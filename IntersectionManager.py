@@ -56,11 +56,8 @@ class IntersectionManager:
         self._tlspeds = False # 是否有交通灯速度信息
         self._WALKINGAREAS = [':A0_w0', ':A0_w1', ':A0_w2', ':A0_w3'] # N, E, S, W 行人区域
         self._CROSSINGS = [':A0_c0', ':A0_c1', ':A0_c2', ':A0_c3'] # N, E, S, W 交叉口区域
-            # check both sides of the crossing
 
-        # PPO variables
         self._SEED = seed # 随机种子
-        self._GAMMA = 0.9 # 折扣因子
         self._LOG_EACH = 1 # 日志记录间隔
 
         self._TrainingRecord = namedtuple('TrainingRecord', ['ep', 'reward']) # 训练记录
@@ -71,17 +68,9 @@ class IntersectionManager:
         torch.manual_seed(self._SEED)
         self._device = torch.device("cuda:0") # 设备
 
-        # PPO Agent
-        # self.agent = Agent(self._device)
-        # Define and build DDPG agent
-        hidden_size = tuple([2048, 256, 256, 128]) # 隐藏层大小
-
-        gamma = 0.9 # 折扣因子
-        tau = 0.01 # 更新目标网络的软更新参数
         self.extra_variables = 6 # Timer (1), quarter (4), and priority signal (1) 额外的状态变量数量
         self.observation_space = self._input_variables * self.max_vehicles + self.extra_variables # 观测空间大小
         action_space = 1 # 动作空间大小
-        checkpoint_dir = 'ckpt/' # 测试点路径
         self.batch_size = 128 # 批处理大小
 
         self.test = train # 是否在测试

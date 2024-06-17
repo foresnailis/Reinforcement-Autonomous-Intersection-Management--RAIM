@@ -11,7 +11,6 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-##### HYPERPARAMETERS #####
 # Replay buffer size
 BUFFER_SIZE = 2**17
 
@@ -44,17 +43,8 @@ critic2_weights_file = 'weights_critic2.pt'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Agent():
-    """Interacts with and learns from the environment."""
 
     def __init__(self, state_size, action_size, model_name, policy_noise=True):
-        """Initialize an Agent object.
-
-        Params
-        ======
-            state_size (int): dimension of each state
-            action_size (int): dimension of each action
-            random_seed (int): random seed
-        """
         print('Device on TD3-PER:', device)
         self.state_size = state_size
         self.action_size = action_size

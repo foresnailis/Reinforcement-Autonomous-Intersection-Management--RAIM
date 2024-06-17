@@ -47,8 +47,7 @@ class ManhattanAlgorithm(SumoAlgorithm):
         WEYELLOW = ("r"+"r"*n+"y"+"y"*n)*(2) + 'yryr'
         CLEAR = ("r"+"r"*n+"r"+"r"*n)*(2) + 'rrrr'
 
-        # Se repiten los estado en yellow tres veces, ya que son el número de
-        # segundos que el semáforo está en amarillo
+    
 
 #        Se repiten el estado de clear dos veces ya que se dan dos segundos para
 #        que se limpie la intersección

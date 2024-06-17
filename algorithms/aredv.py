@@ -103,14 +103,12 @@ class AREDVAlgorithm(ManhattanAlgorithm):
 
         if dec < pa:
             gt += self.delta
-            self.count[index][num] = 0 # Esta línea no estaba incluida en el algoritmo original
+            self.count[index][num] = 0 
 
         if gt > self.limitup:
             gt = self.limitup
         elif gt < self.min_green_time:
             gt = self.min_green_time
-        # -20 ya que es tiempo de amarillo+clear
-        # Cálculo del tiempo en verde de la rama complementaria
         #self.lastgreentime[index][num] = gt
         self.lastgreentime[index][1-num] = self.cycle - 20 - gt
         self.changestate[index]   = self.sm.time + gt
@@ -159,14 +157,12 @@ class AREDVAlgorithm(ManhattanAlgorithm):
 
         if dec < pa:
             gt += self.delta
-            self.count[index][num] = 0 # Esta línea no estaba incluida en el algoritmo original
+            self.count[index][num] = 0 
 
         if gt > self.limitup:
             gt = self.limitup
         elif gt < self.min_green_time:
             gt = self.min_green_time
-        # -20 ya que es tiempo de amarillo+clear
-        # Cálculo del tiempo en verde de la rama complementaria
         #self.lastgreentime[index][num] = gt
         self.lastgreentime[index][1-num] = self.cycle - 20 - gt
         self.changestate[index]   = self.sm.time + gt

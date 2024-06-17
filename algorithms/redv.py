@@ -81,7 +81,7 @@ class REDVAlgorithm(ManhattanAlgorithm):
         print('Checking if dec:{} < pa:{}'.format(dec,pa))
         if dec < pa:
             gt += self.delta
-            self.count[index][num] = 0 # Esta línea no estaba incluida en el algoritmo original
+            self.count[index][num] = 0
         print('Green time after decision: {}'.format(gt))
 
         if gt > self.limitup:

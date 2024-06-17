@@ -1,10 +1,3 @@
-3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jun 16 12:31:55 2020
-
-@author: antonio
-"""
 import os
 import traci
 import traceback
@@ -26,9 +19,6 @@ from TD3PER.ddpg_agent import DDPGAgent
 from TD3PER.td3_agent import Agent
 
 class IntersectionManager:
-    """Intersection Manager for each intersection that regulates
-    the vehicles in each intersection.
-    """
 
     def __init__(self, inter_id, inductionloops, seed, model_name, train=False, policy_noise=True, cf=False, agent='TD3', max_speed=30):
         self._id = inter_id # 交叉路口id

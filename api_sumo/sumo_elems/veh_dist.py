@@ -13,7 +13,6 @@ from elem import Elem
 class VehDist(Elem):
     def __init__(self,_id,\
                     vTypes=None):
-        # Set the basic attributes of a car type
         attr= dict()
         attr['vTypes']=vTypes
         super(VehDist,self).__init__('vTypeDistribution',_id,attr)

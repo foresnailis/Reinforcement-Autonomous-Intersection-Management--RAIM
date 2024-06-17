@@ -39,7 +39,6 @@ class ManhattanGraph(SumoGraph):
         nodef = '{}.{}'.format
         edgef = '{}/{}'.format
 
-        #Crea un nodo en cada punto (fila,columna), excepto en las cuatro esquinas de la malla
         for i in range(self.rows):
             for j in range(self.cols):
                 l = 1 if (0 < i < self.rows-1) and (0 < j < self.cols-1) else 0

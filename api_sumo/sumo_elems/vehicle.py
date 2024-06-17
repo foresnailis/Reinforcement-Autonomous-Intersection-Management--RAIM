@@ -42,7 +42,6 @@ class Vehicle(Elem):
                 reroute=None,\
                 departPosLat=None,\
                 arrivalPosLat=None):
-        # Set the basic attributes of a vehicle
         attr= dict()
         attr['type']=tpe
         attr['route']=route

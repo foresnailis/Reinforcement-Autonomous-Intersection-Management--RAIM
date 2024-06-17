@@ -7,7 +7,5 @@ from sumo_elems.flow import Flow
 from sumo_elems.vehicle import Vehicle
 
 from sumo_scenario import SumoScenario
-from sumo_graph import SumoGraph
-from sumo_algorithm import SumoAlgorithm
 from sumo_simulation import SumoSimulation
 import randomTrips

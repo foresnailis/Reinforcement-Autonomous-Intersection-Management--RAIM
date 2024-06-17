@@ -59,7 +59,6 @@ class CarType(Elem):
                     minGapLat=None,\
                     maxSpeedLat=None,\
                     probability=None):
-        # Set the basic attributes of a car type
         attr= dict()
         attr['accel']=accel
         attr['decel']=decel

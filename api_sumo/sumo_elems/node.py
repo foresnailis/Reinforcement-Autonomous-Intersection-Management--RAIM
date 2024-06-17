@@ -19,7 +19,6 @@ class Node(Elem):
         attr['y']    = y
         attr['type'] = 'traffic_light' if typ else None
         super(Node,self).__init__('node',_id,attr)
-        # Set an extra attribute for graphs algorithms
         super(Node,self).__set_attr__('connections',dict())
     
     def get_connections(self):

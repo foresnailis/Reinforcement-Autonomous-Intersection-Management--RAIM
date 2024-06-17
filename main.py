@@ -40,13 +40,11 @@ with open('proj-root.txt', 'r') as file:
     root = file.read().strip()
 os.chdir(root)
 
-sys.path.append(f"{root}/algorithms")
 sys.path.append(f"{root}/api_sumo")
 sys.path.append(f"{root}/api_sumo/sumo_elems")
 sys.path.append(f"{root}/graphs")
 sys.path.append(f"{root}/scenarios")
 
-from algorithms import *
 from api_sumo import *
 from graphs import *
 from scenarios import *
@@ -86,8 +84,6 @@ else:
 
 red_manhattan = ManhattanGraph(3, 3, 300)
 escenario = ScenarioThree(red_manhattan, 250, 500, 800, 900)
-Fixed = FixedAlgorithm(greentime=(120-10)//2, lanes=args.nlanes)
-
 
 model_weight_path=os.path.join('ckpt', args.model_name)
 
@@ -111,7 +107,6 @@ try:
     for epoch in np.arange(args.epochs):
         simulacion.i_ep = epoch # 将当前轮次的索引传递给仿真环境
         simulacion.seed = int(epoch/change_seed_every) # 基于当前轮次的索引更新了随机种子，以改变随机性
-        simulacion.change_algorithm(Fixed) # 设置控制算法
         simulacion.change_scenario(escenario) # 设置交通场景
         simulacion.change_maxSpeed(args.maxSpeed)
         # simulacion.flow = flow

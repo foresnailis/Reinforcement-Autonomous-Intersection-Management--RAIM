@@ -59,7 +59,6 @@ class Flow(Elem):
         if vehsPerHour==None and period==None and\
             probability==None and number==None:
                 raise ValueError('vehsPerHour,period,probability or number must be defined')
-        # Set the basic attributes of a flow
         attr= dict()
         attr['begin']=begin
         attr['end']=end

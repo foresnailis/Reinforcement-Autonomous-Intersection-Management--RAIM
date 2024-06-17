@@ -9,11 +9,9 @@ from elem import Elem
 
 class Edge(Elem):
     def __init__(self,_id,frm,to):
-        # Set the basic attributes of an edge
         attr         = dict()
         attr['from'] = frm.id
         attr['to']   = to.id
-#        attr['sidewalkWidth'] = 6
+        # attr['sidewalkWidth'] = 6
         super(Edge,self).__init__('edge',_id,attr)
-        # Adds 'to' as neighbor from 'frm'
         frm.connections[to.id] = frm.get_weight(to)

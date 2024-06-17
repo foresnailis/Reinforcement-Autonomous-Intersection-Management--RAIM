@@ -3,17 +3,12 @@ import traci
 import traceback
 import torch
 import math
-import random
-import threading
-import logging
 
 import numpy as np
 import traci.constants as tc
 
 from functools import partial
 from collections import defaultdict, namedtuple
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
-import concurrent.futures
 
 from TD3PER.ddpg_agent import DDPGAgent
 from TD3PER.td3_agent import Agent
@@ -321,38 +316,20 @@ class IntersectionManager:
     # 循环所有车辆，得到所有车辆的action到一个数组中，返回这个数组
     def select_actions(self):
         if self.raw_data and not self.raw_data == [-1]:
-            # print('There are something')
-            # with ThreadPoolExecutor(max_workers=3) as executor:
-                # future = executor.map(self.select_actions_mp, self.raw_data)
-                # print(results.result())
-            # keys = self.raw_data.keys()
-            # with ThreadPoolExecutor(max_workers=self.workers) as executor:
-                # results = executor.map(self.select_actions_mp, keys)
-
             for k, v in self.raw_data.items():
                 s = torch.Tensor(self.state[k]).to(self._device)
                 try:
-                    # action = self.agent.calc_action(state=s, action_noise=self.ou_noise) #calc_action(s)
                     if self.agent.memory.is_full() or self.test: # 如果经验池满/在测试，用动作网络
                         action = self.agent.select_action(state=s) #calc_action(s)
-
-
-                    # Filling the replay buffer with random actions
-                    else: # 否则也使用动作网络？
-                        # print(f'Len buff: {len(self.agent.memory)}')
-                        # action = torch.Tensor([[np.random.uniform(-1, 1)]])
-                        action = self.agent.select_action(state=s) #calc_action(s)
-
-                    # action = traci.vehicle.getSpeedWithoutTraCI(k)
-                    # action = self.transform_actions(action)
-                    # action = torch.Tensor([(action/13.89-0.5)*2])
+                    else:
+                        print(f'Len buff: {len(self.agent.memory)}')
+                        action = torch.Tensor([[np.random.uniform(-1, 1)]])
                 except Exception as e:
                     print("Error on select action: " + str(e))
                     print(traceback.format_exc())
                     print('Selecting 0.0 action')
                     action = 0
-                # I delete the actions_dict before next+1 perform_action() to avoid perform actions twice
-                self.actions[k] = action#.cpu() # 更新动作列表
+                self.actions[k] = action # 更新动作列表
         return self.actions
 
     # 执行所有的action
@@ -416,24 +393,6 @@ class IntersectionManager:
             stepLength = traci.simulation.getDeltaT() # 仿真时间步长（没用到）
             for k, v in self.actions.items(): # 遍历动作列表，更新奖励列表
                 try:
-                    # speed = traci.vehicle.getSpeed(k)
-                    # max_speed = traci.vehicle.getAllowedSpeed(k)
-                    # rel_speed.append(speed/max_speed)
-                    # self.rewards[k] = speed/max_speed # ratio between current speed and max_speed
-                    # low_speed = 1 + np.abs(max_speed - speed) # Penalizamos las velocidades bajas
-                    # speed_dev = 1 #+ np.abs(speed - self.actions[k][0]) # Penalizo las acciones cuando intenta ir rápido, pero va lento por congestión
-
-                    # r = traci.vehicle.getRoadID(k)
-                    # if r[-2:] == self._id: #  Aproximandose a la interseccion:
-                        # factor = 1
-                    # elif r[:1+len(self._id)] == f':{self._id}': # Dentro de la interseccion, para penalizar más que estén dentro
-                        # factor = 2
-                    # else:
-                        # factor = 1
-
-                    # speed_notraci = traci.vehicle.getSpeedWithoutTraCI(k)
-                    # v = (v + 1)/2*13.39 + 0.5
-                    # rew = stepLength + np.abs(speed_notraci - v)
 
                     speed = traci.vehicle.getSpeed(k) # 拿到车辆速度
                     max_speed = traci.vehicle.getAllowedSpeed(k) # 拿到限速
@@ -466,33 +425,14 @@ class IntersectionManager:
             self.already_update = False # 设置更新状态位为0（网络）
             for k in self.raw_data.items(): # 遍历数据列表来更新网络
                 try:
-# =============================================================================
-#                     s = torch.Tensor([self.state[k[0]]]).to(self._device)
-#                     r = torch.Tensor([self.rewards[k[0]]]).to(self._device)
-#                     a = torch.Tensor([self.actions[k[0]]]).view((1, -1)).to(self._device)
-#                     # done = True if r.cpu()[0] > 0 else False
-#                     done = k[0] in self.vehicles_first_time_outside
-#
-#                     mask = torch.Tensor([done]).to(self._device)
-#
-#                     new_s = torch.Tensor([self.new_state[k[0]]]).to(self._device)
-# =============================================================================
                     s = self.state[k[0]]
                     r = self.rewards[k[0]]
                     a = self.actions[k[0]] # 得到当前车辆的s_i，r_i，a_i
                     done = k[0] in self.vehicles_first_time_outside  # 标志位，记录当前车辆是否离开
 
                     new_s = self.new_state[k[0]] # 当前车辆s_{i+1}
-                    # desire_shape = self.observation_space
 
                     # TD3
-# =============================================================================
-#                     # if (len(s) == desire_shape) and (len(new_s) == desire_shape):
-#                         # self.replay_buffer.add(s, a, new_s, r, done)
-#
-#                     # if len(self.replay_buffer) > self.batch_size:
-#                         # self.agent.train(self.replay_buffer, self.batch_size)
-# =============================================================================
 
                     if (len(s) == self.observation_space) and (len(new_s) == self.observation_space): # 如果两个状态都合法
                         self.agent.step(s, a, r, new_s, done) # 令代理更新
@@ -508,19 +448,11 @@ class IntersectionManager:
                         # self.epoch += 1
 
                 except Exception as e:
-                    # print(f"Error while obtain reward, the vehicle doesn't exist22222")
+                    print(f"Error while obtain reward, the vehicle doesn't exist22222")
                     print(e)
-                    # print(traceback.format_exc())
-                # else:
-                    # print('Look at me!')
-                # try:
-                # epoch_value_loss = 0
-                # epoch_policy_loss = 0
             self.epoch += 1 # 迭代步数加1
 
         self.actions.clear() # 清空动作列表
-        # if self._exit:
-            # self._traci.close()
 
         return self.score # 返回得分
 
@@ -566,7 +498,6 @@ class IntersectionManager:
 
     def _obtain_vehicles_in_intersection(self): # 以上函数的细节实现
         try:
-            # https://sumo.dlr.de/pydoc/traci.constants.html
             self._traci.junction.subscribeContext(self._id,
                                                   tc.CMD_GET_VEHICLE_VARIABLE,
                                                   self._max_dist_detect,
@@ -580,8 +511,6 @@ class IntersectionManager:
                     for veh in vehicles:
                         traci.vehicle.setLaneChangeMode(veh,0b000000000000)
                         traci.vehicle.setSpeedMode(veh, 000000)
-                # print(f'\n Found {len(vehicles)} vehicles before filtering')
-                # print(f'\t Keys: {vehicles.keys()}')
                 return self._remove_moving_away(self._id, vehicles) # If vehicles are approaching the intersection 
 
             else:
@@ -634,17 +563,6 @@ class IntersectionManager:
         return vehicles # 返回这个列表
 
     def _obtain_vehicles_params(self, vehicles): # 得到车辆参数
-        """
-        Parameters
-        ----------
-        vehicles : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        updated data.
-
-        """
         data = defaultdict(list)
 
         for veh in vehicles:
@@ -658,18 +576,6 @@ class IntersectionManager:
         # 得到：交叉口位置、车辆绝对位置、车辆相当于交叉口中心的相对归一化位置、
         # 相对于交叉口中心的归一化转化距离、车辆的归一化速度、车辆车道索引、
         # 车辆目的位置、车辆所在独热队列、车辆归一化角度
-        """
-        Parameters
-        ----------
-        vehicle : str
-            the identifier of the vehicle to obtain it's params.
-
-        Returns
-        -------
-        params : list(params)
-            multiple params.
-
-        """
         self._position = self._traci.junction.getPosition(self._id)
 
         (x, y) = self._traci.vehicle.getPosition(veh)
@@ -700,16 +606,8 @@ class IntersectionManager:
         queue = self.transform_queue(queue)
         # 这里的queue=[W,E,S,N]。在哪个方位就置1，其他0
 
-        # wt = self._traci.vehicle.getWaitingTime(veh)
-        # acc_wt = self._traci.vehicle.getAccumulatedWaitingTime(veh)
-        # vtype = self._traci.vehicle.getTypeID(veh)
-        # width = self._traci.vehicle.getWidth(veh)
-        # length = self._traci.vehicle.getLength(veh)
         angle = self._traci.vehicle.getAngle(veh)/180-1
 
-        # params = [rel_x, rel_y, speed, acc, inlane, way, wt,
-                  # acc_wt, vtype, width, length, angle]
-        # params = [(rel_x+1)/2, (rel_y+1)/2, dist/self._max_dist_detect, speed] + inlane + way
         params = [rel_x, rel_y, dist, speed*2 - 1, angle] + inlane + way + queue + [self.is_inside(veh, self._id)]
 
         return params

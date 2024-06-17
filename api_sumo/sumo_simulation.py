@@ -1,11 +1,8 @@
 import os
 import subprocess
-import sys
 import platform
 import traceback
-import pickle
 
-import pandas as pd
 import numpy as np
 
 import traci
@@ -14,7 +11,6 @@ import traci.constants as tc
 from IntersectionManager import IntersectionManager
 from sumolib import checkBinary
 from collections import defaultdict, namedtuple
-from xml.dom import minidom
 
 
 class SumoSimulation(object):
@@ -32,9 +28,7 @@ class SumoSimulation(object):
     '''
 
     def __init__(self,
-                 sg=None,
                  ss=None,
-                 sa=None,
                  gui=False,
                  sm='sumo',
                  smg='sumo-gui',
@@ -57,9 +51,7 @@ class SumoSimulation(object):
                  agent='TD3',
                  map='Default',
                  tl = False):
-        self.sg = sg
         self.ss = ss
-        self.sa = sa
 
         self.sgC = True
         self.ssC = True
@@ -156,12 +148,8 @@ class SumoSimulation(object):
         self.ssC = True
         self.saC = True
 
-    def change_algorithm(self, sa):  # Algorithm更新与相关结构更新
-        self.sa = sa
-        self.saC = True
-
     def run_simulation(self):  # 模拟函数
-        if not (self.sg and self.ss and self.sa):  # 是否实例化必要结构
+        if not (self.sg and self.ss):  # 是否实例化必要结构
             raise ValueError('Graph,Scenario and Algorithm are needed')
 
         '''
@@ -170,11 +158,6 @@ class SumoSimulation(object):
         然后其他地方使用traci.juntion或者traci.vehicle等调用SUMOapi
         '''
         self.init_simulation()
-        if self.saC:  # 初始化saC判断
-            # self.sa.prepare_algorithm(self)
-            self.saC = False
-        # else:
-            # self.sa.reset_algorithm(self)
 
         TrainingRecord = namedtuple(
             'TrainingRecord', ['ep', 'reward', 'score'])  # 训练记录：轮次与奖励

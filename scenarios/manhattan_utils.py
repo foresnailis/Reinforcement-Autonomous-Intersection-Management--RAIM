@@ -1,6 +1,3 @@
-from api_sumo import SumoScenario,CarType,Vehicle,Flow,Route
-from random import randint
-
 """
 返回值：生成车辆行进路径的边集合
 起点(i1, j1)
@@ -36,10 +33,11 @@ def get_edges(i1,j1,i2,j2,rows,cols,straight,pedestrians):
             else: # 变道
                 # 车辆位于车道最右侧，先变道再直行
                 # 否则先直行再变道
-                if i1 == 0 or i1 == rows-1: 
-                    s.expand(getRoute(i1,j1,i2,j1,nrows,ncols).expand(getRoute(i2,j1,i2,j2,nrows,ncols)))
-                else:
-                    s.expand(getRoute(i1,j1,i1,j2,nrows,ncols).expand(getRoute(i1,j2,i2,j2,nrows,ncols)))
+                print("不考虑")
+                # if i1 == 0 or i1 == rows-1: 
+                #     s.expand(getRoute(i1,j1,i2,j1,nrows,ncols).expand(getRoute(i2,j1,i2,j2,nrows,ncols)))
+                # else:
+                #     s.expand(getRoute(i1,j1,i1,j2,nrows,ncols).expand(getRoute(i1,j2,i2,j2,nrows,ncols)))
         else:
             # 南北走向来车，右转
             # 先直走，再直角转弯，直走
